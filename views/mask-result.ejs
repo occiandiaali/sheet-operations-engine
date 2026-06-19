@@ -1,0 +1,27 @@
+<div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+  <h3 style="color: #166534; margin: 0;">🛡️ Secure View Compiled Successfully</h3>
+  <button hx-get="/ui/reset-mask" hx-target="#mask-output" style="background: #fd4d40; width: auto; padding: 6px 12px; font-size: 13px;">✕ Clear View</button>
+</div>
+<p style="font-size: 14px; color:#475569;">The target column was completely stripped execution-side before rendering.</p>
+<div style="overflow-x: auto;">
+  <table>
+    <thead>
+      <tr>
+        <% headers.forEach(header => { %>
+          <th><%= header %></th>
+        <% }) %>
+      </tr>
+    </thead>
+    <tbody>
+      <% rows.forEach(row => { %>
+        <tr>
+          <% headers.forEach(header => { %>
+            <td <% if(String(row[header]).includes('MASKED')) { %> style="color:red; background:#fff5f5; font-weight:bold;" <% } %> >
+              <%= row[header] %>
+            </td>
+          <% }) %>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>

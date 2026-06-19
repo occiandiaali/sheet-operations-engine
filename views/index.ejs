@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Micro-SaaS Spreadsheet Hub</title>
+  <script src="/htmx/htmx.js"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 40px; background: #f8fafc; color: #1e293b; }
+    
+    .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 30px; max-width: 800px; border: 1px solid #e2e8f0; }
+    .auth-container { max-width: 400px; margin: 60px auto; background: white; padding: 35px; border-radius: 12px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
+    button { background: #2563eb; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: 500; width: 100%; transition: background 0.2s; }
+    button:hover { background: #1d4ed8; }
+    input { padding: 10px; margin: 8px 0 20px 0; display: block; width: 100%; box-sizing: border-box; border: 1px solid #cbd5e1; border-radius: 6px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; background: #fff; }
+    th, td { border: 1px solid #e2e8f0; padding: 12px; text-align: left; }
+    th { background: #f1f5f9; }
+    .htmx-indicator { display: none; color: #2563eb; font-weight: bold; margin-top: 10px; }
+    .htmx-request .htmx-indicator { display: block; }
+    .toggle-link { color: #2563eb; text-align: center; cursor: pointer; display: block; margin-top: 15px; font-size: 14px; text-decoration: underline; }
+    .hidden { display: none; }
+
+    /* Hide loaders by default */
+.auth-indicator {
+  display: none;
+  color: #2563eb;
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 10px;
+  text-align: center;
+}
+
+/* HTMX automatically displays the loader when processing takes place */
+.htmx-request .auth-indicator {
+  display: block;
+}
+
+/* Force HTMX indicators to show up when their parent form is executing a request */
+.htmx-request + .htmx-indicator,
+.htmx-request.htmx-indicator {
+  display: block !important;
+}
+
+/* Dim the submit button while loading to prevent double-clicks */
+.htmx-request button[type="submit"] {
+  background: #94a3b8 !important;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Dashboard Header Container */
+.dashboard-header {
+  max-width: 800px;
+  margin: 0 auto 20px auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Right Side Container holding Email and Button */
+.user-badge-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.workspace-badge {
+  color: #475569;
+}
+
+.logout-btn {
+  background: #dc2626; 
+  padding: 8px 15px; 
+  width: auto; 
+  white-space: nowrap; /* Prevents the logout text from wrapping into two lines */
+}
+.logout-btn:hover {
+  background: #b91c1c;
+}
+
+/* 📱 MOBILE RESPONSIVE MEDIA QUERY (< 600px) */
+@media (max-width: 600px) {
+  .dashboard-header {
+    flex-direction: column; /* Stack Title vertically above user details */
+    align-items: flex-start; /* Align everything cleanly to the left */
+    gap: 10px;
+  }
+
+  .user-badge-container {
+    flex-direction: column; /* Stack Email above Logout button on small screens */
+    align-items: flex-start;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .logout-btn {
+    width: 100%; /* Make button full width on mobile for better thumb-tapping UX */
+    text-align: center;
+  }
+}
+  </style>
+</head>
+<body>
+
+  <% if (!user) { %>
+    <div class="auth-container">
+      
+
+      <div id="login-box">
+  <h2 style="margin-top:0;">Welcome Back</h2>
+  <div id="login-feedback"></div>
+  
+  <form hx-post="/auth/login" hx-target="#login-feedback" hx-indicator="#login-loader">
+    <label>Email Address</label>
+    <input type="email" name="email" required placeholder="you@company.com">
+    <label>Password</label>
+    <input type="password" name="password" required placeholder="••••••••">
+    <button type="submit">Sign In</button>
+    
+    <div id="login-loader" class="auth-indicator">Authenticating credentials...</div>
+  </form>
+  <span class="toggle-link" onclick="toggleAuthForms()">Need an account? Register here</span>
+</div>
+
+<div id="register-box" class="hidden">
+  <h2 style="margin-top:0;">Create Workspace Account</h2>
+  <div id="register-feedback"></div>
+  
+  <form hx-post="/auth/register" hx-target="#register-feedback" hx-indicator="#register-loader">
+    <label>Email Address</label>
+    <input type="email" name="email" required placeholder="name@domain.com">
+    <label>Create Secure Password</label>
+    <input type="password" name="password" required placeholder="••••••••">
+    <button type="submit" style="background:#059669;">Create Free Account</button>
+    
+    <div id="register-loader" class="auth-indicator">Provisioning security tokens & database entry...</div>
+  </form>
+  <span class="toggle-link" onclick="toggleAuthForms()">Already have an account? Sign in</span>
+</div>
+
+    </div>
+
+    <script>
+      function toggleAuthForms() {
+        document.getElementById('login-box').classList.toggle('hidden');
+        document.getElementById('register-box').classList.toggle('hidden');
+      }
+    </script>
+
+  <% } else { %>
+
+    <div class="dashboard-header">
+  <h1>Spreadsheet Operations Engine</h1>
+  <div class="user-badge-container">
+    <span class="workspace-badge">Active workspace: <strong><%= user.email %></strong></span>
+    <button hx-post="/auth/logout" class="logout-btn">Secure Logout</button>
+  </div>
+</div>
+    <br>
+
+    <div style="max-width:800px; margin:0 auto;">
+
+      <div class="card" id="diff-section">
+  <h2>🔍 Version Comparison Engine (Diff)</h2>
+  <p style="color:#475569;">Upload two versions of a spreadsheet to instantly cross-reference row changes.</p>
+  <form hx-post="/api/diff" hx-encoding="multipart/form-data" hx-target="#diff-output" hx-indicator="#diff-loader">
+    <label><strong>Original Sheet (v1)</strong></label>
+    <input type="file" name="fileA" required>
+    <label><strong>Modified Sheet (v2)</strong></label>
+    <input type="file" name="fileB" required>
+    <button type="submit">Analyze Discrepancies</button>
+  </form>
+  <div id="diff-loader" class="htmx-indicator">Parsing sheets and calculating diffs...</div>
+  <div id="diff-output"></div>
+</div>
+
+<div class="card" id="mask-section">
+  <h2>🛡️ Column Masking</h2>
+  <p style="color:#475569;">Redact a highly sensitive column entirely on our infrastructure before rendering data back down to web viewing portals.</p>
+  <form hx-post="/api/mask" hx-encoding="multipart/form-data" hx-target="#mask-output" hx-indicator="#mask-loader">
+    <label><strong>Target Spreadsheet</strong></label>
+    <input type="file" name="targetFile" required>
+    <!-- <label><strong>Column Name to Redact</strong> (Case sensitive, e.g., <em>Annual Salary (USD)</em>)</label>
+    <input type="text" name="columnName" placeholder="Annual Salary (USD)" required> -->
+    <label><strong>Column Name(s) to Redact</strong> (Separate multiple columns with commas, e.g., <em>Annual Salary (USD), Full Name</em>)</label>
+<input type="text" name="columnName" placeholder="Annual Salary (USD), Full Name" required>
+    <button type="submit" style="background:#0f766e;">Scrub Column & Save View</button>
+  </form>
+  <div id="mask-loader" class="htmx-indicator">Executing server-side scrubbing loop...</div>
+  <div id="mask-output"></div>
+</div>
+    </div>
+  <% } %>
+
+</body>
+</html>
