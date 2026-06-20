@@ -32,6 +32,7 @@ app.use(
   "/htmx",
   express.static(path.join(__dirname, "node_modules/htmx.org/dist")),
 );
+app.use(express.static("public"));
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -176,7 +177,7 @@ app.post("/auth/register", async (req, res) => {
     res.header("HX-Redirect", "/");
     res.send();
   } catch (error) {
-    // CRITICAL: This will print the actual driver/network error to your terminal terminal window
+    // CRITICAL: This will print the actual driver/network error to the terminal terminal window
     console.error("REGISTRATION ERROR DETAIL:", error);
     res
       .status(500)
@@ -219,71 +220,7 @@ app.post("/auth/logout", (req, res) => {
   res.send();
 });
 
-// --- Feature API Implementations (Protected by real Auth) ---
-
-// app.post(
-//   "/api/diff",
-//   isAuthenticated,
-//   upload.fields([{ name: "fileA" }, { name: "fileB" }]),
-//   async (req, res) => {
-//     let paths = [];
-//     try {
-//       if (!req.files || !req.files["fileA"] || !req.files["fileB"]) {
-//         return res
-//           .status(400)
-//           .send("Please select both spreadsheet documents.");
-//       }
-
-//       paths.push(req.files["fileA"][0].path, req.files["fileB"][0].path);
-
-//       const dataA = parseSpreadsheet(paths[0]);
-//       const dataB = parseSpreadsheet(paths[1]);
-
-//       const diffResults = [];
-//       const maxRows = Math.max(dataA.length, dataB.length);
-
-//       for (let i = 0; i < maxRows; i++) {
-//         const rowA = dataA[i] || {};
-//         const rowB = dataB[i] || {};
-//         const allKeys = Array.from(
-//           new Set([...Object.keys(rowA), ...Object.keys(rowB)]),
-//         );
-//         let isRowDifferent = false;
-//         const cellDiffs = {};
-
-//         allKeys.forEach((key) => {
-//           const valA = String(rowA[key] || "");
-//           const valB = String(rowB[key] || "");
-//           if (valA !== valB) {
-//             isRowDifferent = true;
-//             cellDiffs[key] = {
-//               original: valA,
-//               current: valB,
-//               status: "modified",
-//             };
-//           } else {
-//             cellDiffs[key] = {
-//               original: valA,
-//               current: valB,
-//               status: "unchanged",
-//             };
-//           }
-//         });
-
-//         if (isRowDifferent) {
-//           diffResults.push({ rowIndex: i + 1, changes: cellDiffs });
-//         }
-//       }
-
-//       // Safely delete staging documents post calculations
-//       paths.forEach(cleanFile);
-//       res.render("diff-result", { diffResults });
-//     } catch (error) {
-//       paths.forEach(cleanFile);
-//       res.status(500).send("Analysis compilation error.");
-//     }
-//   },
-// );
+// --- Feature API Implementations (Protected by Auth) ---
 app.post(
   "/api/diff",
   isAuthenticated,
@@ -293,7 +230,7 @@ app.post(
     try {
       if (!req.files || !req.files["fileA"] || !req.files["fileB"]) {
         return res
-          .status(400)
+          .status(200)
           .send("Please select both spreadsheet documents.");
       }
 
@@ -312,9 +249,9 @@ app.post(
       ) {
         paths.forEach(cleanFile);
         return res
-          .status(400)
+          .status(200)
           .send(
-            '<p style="color:red; font-weight:bold;">❌ Error: System only processes valid spreadsheet formats (.xlsx, .xls, .csv).</p>',
+            '<p style="color:red; font-weight:bold; margin: 6px;">❌ Error: System only processes valid spreadsheet formats (.xlsx, .xls, .csv).</p>',
           );
       }
 
@@ -341,8 +278,8 @@ app.post(
 
       if (similarityScore < 0.6) {
         paths.forEach(cleanFile);
-        return res.status(400).send(`
-        <div style="border: 1px solid #f59e0b; background: #fffbeb; padding: 15px; border-radius: 6px; color: #b45309;">
+        return res.status(200).send(`
+        <div style="border: 1px solid #f59e0b; background: #fffbeb; padding: 15px;margin-top: 4px; border-radius: 6px; color: #b45309;">
           <strong>⚠️ Structural Version Mismatch Identified</strong>
           <p style="margin: 5px 0 0 0; font-size: 14px;">These sheets do not appear to be versions of the same template. Column profiles do not align (Similarity Score: ${(similarityScore * 100).toFixed(0)}%). Please verify source documents.</p>
         </div>
@@ -391,7 +328,11 @@ app.post(
     } catch (error) {
       paths.forEach(cleanFile);
       console.error(error);
-      res.status(500).send("Analysis compilation error.");
+      res.status(500).send(`
+        <div style="border: 1px solid #f59e0b; background: #fffbeb; padding: 15px; margin-top: 4px; border-radius: 6px; color: #ff0000;">
+        <p style="margin: 5px 0 0 0; font-size: 14px;">❌ Analysis compilation error.</p>
+        </div>
+        `);
     }
   },
 );
@@ -508,16 +449,24 @@ app.get("/ui/reset-diff", isAuthenticated, (req, res) => {
 
 app.post("/api/sheets/clear", isAuthenticated, async (req, res) => {
   try {
-    // Delete only the documents belonging to the logged-in user
+    // Completely wipe out documents linked to this active workspace user identity
     await Sheet.deleteMany({ userId: req.user._id });
 
-    // Return an HTMX success fragment that resets the output display
-    res.send(
-      '<p style="color: green; font-weight: bold;">✓ Data Workspace Cleared Successfully. MongoDB collection cleaned.</p>',
-    );
+    // Send a structured confirmation card back down the wire
+    res.send(`
+      <div style="text-align: center; padding: 40px 20px; border: 1px dashed #10b981; background: #ecfdf5; border-radius: 8px;margin:6px;">
+        <h3 style="color: #065f46; margin: 0 0 10px 0;">✓ Database Purge Successful</h3>
+        <p style="color: #047857; margin: 0 0 20px 0; font-size: 14px;">All hosted links are now dead, and your database document structures have been dropped securely.</p>
+        <button hx-get="/" hx-target="body" style="background: #047857; width: auto; font-size: 13px; padding: 8px 16px;">+ Open New Workspace Instance</button>
+      </div>
+    `);
   } catch (error) {
     console.error(error);
-    res.status(500).send("Error clearing workspace documents.");
+    res
+      .status(500)
+      .send(
+        '<p style="color:red; font-weight:bold;">Error executing manual database purge pipeline.</p>',
+      );
   }
 });
 

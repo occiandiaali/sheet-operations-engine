@@ -2,10 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Micro-SaaS Spreadsheet Hub</title>
+      <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SheetSage | Spreadsheet Diffing &amp; Column Redaction</title>
   <script src="/htmx/htmx.js"></script>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 40px; background: #f8fafc; color: #1e293b; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 40px; 
+    /* background: #f8fafc; */
+
+background: #B1ECEF;
+background: linear-gradient(180deg, #B1ECEF, #D2C9FF);
+     color: #1e293b; }
     
     .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 30px; max-width: 800px; border: 1px solid #e2e8f0; }
     .auth-container { max-width: 400px; margin: 60px auto; background: white; padding: 35px; border-radius: 12px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
@@ -23,7 +30,8 @@
     /* Hide loaders by default */
 .auth-indicator {
   display: none;
-  color: #2563eb;
+  /* color: #2563eb; */
+  color: #db6e08;
   font-size: 14px;
   font-weight: 500;
   margin-top: 10px;
@@ -31,8 +39,9 @@
 }
 
 /* HTMX automatically displays the loader when processing takes place */
-.htmx-request .auth-indicator {
-  display: block;
+.htmx-request + .auth-indicator,
+.htmx-request.auth-indicator {
+  display: block !important;
 }
 
 /* Force HTMX indicators to show up when their parent form is executing a request */
@@ -57,12 +66,23 @@
   align-items: center;
   gap: 15px;
 }
+.dashboard-header h1 {
+    background-image: linear-gradient(90deg, orangered, yellow);
+    /* background-image: linear-gradient(90deg, rgb(66, 1, 50), rgb(250, 83, 200)); */
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  position: fixed;
+  font-size: 2.4rem;
+}
 
 /* Right Side Container holding Email and Button */
 .user-badge-container {
   display: flex;
   align-items: center;
   gap: 15px;
+  position: fixed;
+  right: 20%;
 }
 
 .workspace-badge {
@@ -70,7 +90,8 @@
 }
 
 .logout-btn {
-  background: #dc2626; 
+  /* background: #dc2626;  */
+  background: tomato;
   padding: 8px 15px; 
   width: auto; 
   white-space: nowrap; /* Prevents the logout text from wrapping into two lines */
@@ -79,24 +100,53 @@
   background: #b91c1c;
 }
 
+footer {
+  position: fixed;
+  bottom: 0;
+  left: 35%;
+  color: gray;
+  font-size: small;
+}
+
+.purged-div {
+  text-align: center; 
+  margin-bottom: 6px; 
+  border-top: 1px solid #cbd5e1; 
+  padding-top: 8px;
+}
+
 /* 📱 MOBILE RESPONSIVE MEDIA QUERY (< 600px) */
 @media (max-width: 600px) {
   .dashboard-header {
     flex-direction: column; /* Stack Title vertically above user details */
-    align-items: flex-start; /* Align everything cleanly to the left */
+    align-items: center; /* Align everything cleanly to the left */
     gap: 10px;
+  }
+
+  .dashboard-header h1 {
+    top: 0;
   }
 
   .user-badge-container {
     flex-direction: column; /* Stack Email above Logout button on small screens */
-    align-items: flex-start;
+    /* align-items: flex-start;
     gap: 8px;
-    width: 100%;
+    width: 100%; */
+    font-size: small;
+    top: 15%;
+  }
+
+  .purged-div {
+    margin-top: 30%;
   }
 
   .logout-btn {
     width: 100%; /* Make button full width on mobile for better thumb-tapping UX */
     text-align: center;
+  }
+
+  footer {
+    left: 15%;
   }
 }
   </style>
@@ -118,8 +168,8 @@
     <input type="password" name="password" required placeholder="••••••••">
     <button type="submit">Sign In</button>
     
-    <div id="login-loader" class="auth-indicator">Authenticating credentials...</div>
   </form>
+  <div id="login-loader" class="auth-indicator">Authenticating credentials...</div>
   <span class="toggle-link" onclick="toggleAuthForms()">Need an account? Register here</span>
 </div>
 
@@ -134,8 +184,8 @@
     <input type="password" name="password" required placeholder="••••••••">
     <button type="submit" style="background:#059669;">Create Free Account</button>
     
-    <div id="register-loader" class="auth-indicator">Provisioning security tokens & database entry...</div>
   </form>
+  <div id="register-loader" class="auth-indicator">Provisioning security tokens & database entry...</div>
   <span class="toggle-link" onclick="toggleAuthForms()">Already have an account? Sign in</span>
 </div>
 
@@ -151,23 +201,25 @@
   <% } else { %>
 
     <div class="dashboard-header">
-  <h1>Spreadsheet Operations Engine</h1>
+  <h1>SheetSage</h1>
   <div class="user-badge-container">
     <span class="workspace-badge">Active workspace: <strong><%= user.email %></strong></span>
     <button hx-post="/auth/logout" class="logout-btn">Secure Logout</button>
   </div>
 </div>
     <br>
-    <div style="margin-top: 10px; border-top: 1px solid #cbd5e1; padding-top: 15px;">
+    <div class="purged-div">
   <button hx-post="/api/sheets/clear" 
-          hx-target="#mask-output" 
-          hx-confirm="Are you sure you want to delete all your securely hosted shared views from MongoDB?" 
+          hx-target="#purged-div" 
+          hx-confirm="Are you sure you want to delete all your securely hosted shared views from the database?" 
           style="background: #b91c1c; width: auto; font-size: 13px; padding: 6px 12px;">
     🗑️ Purge Stored Database Snapshots
   </button>
 </div>
 
     <div style="max-width:800px; margin:0 auto;">
+    
+      <div id="purged-div"></div>
 
       <div class="card" id="diff-section">
   <h2>🔍 Version Comparison Engine (Diff)</h2>
@@ -177,7 +229,7 @@
     <input type="file" name="fileA" required>
     <label><strong>Modified Sheet (v2)</strong></label>
     <input type="file" name="fileB" required>
-    <button type="submit">Analyze Discrepancies</button>
+    <button type="submit">Analyze</button>
   </form>
   <div id="diff-loader" class="htmx-indicator">Parsing sheets and calculating diffs...</div>
   <div id="diff-output"></div>
@@ -185,15 +237,15 @@
 
 <div class="card" id="mask-section">
   <h2>🛡️ Column Masking</h2>
-  <p style="color:#475569;">Redact a highly sensitive column entirely on our infrastructure before rendering data back down to web viewing portals.</p>
+  <p style="color:#475569;">Redact a highly sensitive column before rendering data back down to web viewing portals.</p>
   <form hx-post="/api/mask" hx-encoding="multipart/form-data" hx-target="#mask-output" hx-indicator="#mask-loader">
     <label><strong>Target Spreadsheet</strong></label>
     <input type="file" name="targetFile" required>
     <!-- <label><strong>Column Name to Redact</strong> (Case sensitive, e.g., <em>Annual Salary (USD)</em>)</label>
     <input type="text" name="columnName" placeholder="Annual Salary (USD)" required> -->
-    <label><strong>Column Name(s) to Redact</strong> (Separate multiple columns with commas, e.g., <em>Annual Salary (USD), Full Name</em>)</label>
-<input type="text" name="columnName" placeholder="Annual Salary (USD), Full Name" required>
-    <button type="submit" style="background:#0f766e;">Scrub Column & Save View</button>
+    <label><strong>Column Name(s) to Redact</strong> (e.g., <em>Annual Salary (USD), Full Name</em>)</label>
+<input type="text" name="columnName" placeholder="Separate multiple names with commas" required>
+    <button type="submit" style="background:#0f766e;">Scrub &amp; Save View</button>
   </form>
   <div id="mask-loader" class="htmx-indicator">Executing server-side scrubbing loop...</div>
   <div id="mask-output"></div>
@@ -201,5 +253,6 @@
     </div>
   <% } %>
 
+  <footer>&copy; 2026 | Built by <a href="https://occiandiaali.pages.dev" target="_blank">Occian F Diaali</a></footer>
 </body>
 </html>
