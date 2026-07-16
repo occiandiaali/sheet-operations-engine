@@ -4,14 +4,20 @@
   <meta charset="UTF-8">
       <link rel="icon" type="image/svg+xml" href="/logo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SheetSage | Spreadsheet Diffing &amp; Column Redaction</title>
+  <title>ScrubSpreadsheet | Spreadsheet Diffing &amp; Column Redaction</title>
   <script src="/htmx/htmx.js"></script>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 40px; 
     /* background: #f8fafc; */
 
-background: #B1ECEF;
-background: linear-gradient(180deg, #B1ECEF, #D2C9FF);
+/* background: #B1ECEF;
+background: linear-gradient(180deg, #B1ECEF, #D2C9FF); */
+
+background: #E5E5E5;
+background: linear-gradient(180deg, #E5E5E5, #242323);
+background-size: cover;
+background-repeat: no-repeat;
+
      color: #1e293b; }
     
     .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 30px; max-width: 800px; border: 1px solid #e2e8f0; }
@@ -67,8 +73,8 @@ background: linear-gradient(180deg, #B1ECEF, #D2C9FF);
   gap: 15px;
 }
 .dashboard-header h1 {
-    background-image: linear-gradient(90deg, orangered, yellow);
-    /* background-image: linear-gradient(90deg, rgb(66, 1, 50), rgb(250, 83, 200)); */
+    /* background-image: linear-gradient(90deg, orangered, yellow); */
+    background-image: linear-gradient(90deg, rgb(66, 1, 50), rgb(250, 83, 200));
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
@@ -97,15 +103,20 @@ background: linear-gradient(180deg, #B1ECEF, #D2C9FF);
   white-space: nowrap; /* Prevents the logout text from wrapping into two lines */
 }
 .logout-btn:hover {
-  background: #b91c1c;
+  background: #8d4444;
 }
 
 footer {
   position: fixed;
   bottom: 0;
-  left: 35%;
-  color: gray;
+  left: 38%;
+  margin: 4px;
+  /* color: gray; */
+  color: orangered;
   font-size: small;
+}
+footer > a {
+  color: orangered;
 }
 
 .purged-div {
@@ -125,6 +136,11 @@ footer {
 
   .dashboard-header h1 {
     top: 0;
+    font-size: 1.5rem;
+  }
+
+  .card h2 {
+    font-size: larger;
   }
 
   .user-badge-container {
@@ -146,7 +162,9 @@ footer {
   }
 
   footer {
-    left: 15%;
+    left: 13%;
+    
+    font-size: x-small;
   }
 }
   </style>
@@ -163,7 +181,7 @@ footer {
   
   <form hx-post="/auth/login" hx-target="#login-feedback" hx-indicator="#login-loader">
     <label>Email Address</label>
-    <input type="email" name="email" required placeholder="you@company.com">
+    <input type="email" name="email" required placeholder="name@domain.com">
     <label>Password</label>
     <input type="password" name="password" required placeholder="••••••••">
     <button type="submit">Sign In</button>
@@ -174,7 +192,7 @@ footer {
 </div>
 
 <div id="register-box" class="hidden">
-  <h2 style="margin-top:0;">Create Workspace Account</h2>
+  <h2 style="margin-top:0;">Create Account</h2>
   <div id="register-feedback"></div>
   
   <form hx-post="/auth/register" hx-target="#register-feedback" hx-indicator="#register-loader">
@@ -201,7 +219,7 @@ footer {
   <% } else { %>
 
     <div class="dashboard-header">
-  <h1>SheetSage</h1>
+  <h1>ScrubSpreadsheet</h1>
   <div class="user-badge-container">
     <span class="workspace-badge">Active workspace: <strong><%= user.email %></strong></span>
     <button hx-post="/auth/logout" class="logout-btn">Secure Logout</button>
@@ -236,7 +254,7 @@ footer {
 </div>
 
 <div class="card" id="mask-section">
-  <h2>🛡️ Column Masking</h2>
+  <h2>🛡️ Column Masking (Scrub)</h2>
   <p style="color:#475569;">Redact a highly sensitive column before rendering data back down to web viewing portals.</p>
   <form hx-post="/api/mask" hx-encoding="multipart/form-data" hx-target="#mask-output" hx-indicator="#mask-loader">
     <label><strong>Target Spreadsheet</strong></label>
@@ -253,6 +271,6 @@ footer {
     </div>
   <% } %>
 
-  <footer>&copy; 2026 | Built by <a href="https://occiandiaali.pages.dev" target="_blank">Occian F Diaali</a></footer>
+  <footer>&copy; 2026 ScrubSpreadsheet | By <a href="https://occiandiaali.com" target="_blank">occiandiaali.com</a></footer>
 </body>
 </html>
