@@ -5,9 +5,17 @@
       <link rel="icon" type="image/svg+xml" href="/logo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ScrubSpreadsheet | Spreadsheet Diffing &amp; Column Redaction</title>
+  <!-- Minified version -->
+<link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+
   <script src="/htmx/htmx.js"></script>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 40px; 
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+      /* margin: 40px;  */
+      margin: 0;
+      padding: 0;
+      height: auto;
     /* background: #f8fafc; */
 
 /* background: #B1ECEF;
@@ -17,14 +25,16 @@ background: #E5E5E5;
 background: linear-gradient(180deg, #E5E5E5, #242323);
 background-size: cover;
 background-repeat: no-repeat;
-
-     color: #1e293b; }
-    
+color: #1e293b; 
+}
+    .auth-container { width: 100%; text-align: center; margin: 8px auto; background: white; padding: 8px; border-radius: 12px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
     .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 30px; max-width: 800px; border: 1px solid #e2e8f0; }
-    .auth-container { max-width: 400px; margin: 60px auto; background: white; padding: 35px; border-radius: 12px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
-    button { background: #2563eb; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: 500; width: 100%; transition: background 0.2s; }
-    button:hover { background: #1d4ed8; }
-    input { padding: 10px; margin: 8px 0 20px 0; display: block; width: 100%; box-sizing: border-box; border: 1px solid #cbd5e1; border-radius: 6px; }
+    /* .auth-container { max-width: 400px; margin: 60px auto; background: white; padding: 35px; border-radius: 12px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; } */
+    /* button { background: #2563eb; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: 500; width: 100%; transition: background 0.2s; } */
+    button { color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: 500; max-width: 240px; transition: background 0.2s; }
+    /* button:hover { background: #1d4ed8; } */
+    /* input { padding: 10px; margin: 8px 0 20px 0; display: block; width: 100%; max-width: 300px; box-sizing: border-box; border: 1px solid #cbd5e1; border-radius: 6px; } */
+    input { padding: 10px; margin: 8px auto 20px auto; display: block; width: 100%; max-width: 300px; box-sizing: border-box; border: 1px solid #cbd5e1; border-radius: 6px; }
     table { width: 100%; border-collapse: collapse; margin-top: 15px; background: #fff; }
     th, td { border: 1px solid #e2e8f0; padding: 12px; text-align: left; }
     th { background: #f1f5f9; }
@@ -37,7 +47,7 @@ background-repeat: no-repeat;
 .auth-indicator {
   display: none;
   /* color: #2563eb; */
-  color: #db6e08;
+  color: #bb5e08;
   font-size: 14px;
   font-weight: 500;
   margin-top: 10px;
@@ -66,10 +76,11 @@ background-repeat: no-repeat;
 /* Dashboard Header Container */
 .dashboard-header {
   max-width: 800px;
-  margin: 0 auto 20px auto;
+  /* margin: 0 auto 20px auto; */
+  margin: 5% auto 20px auto;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  /* align-items: center; */
   gap: 15px;
 }
 .dashboard-header h1 {
@@ -79,6 +90,8 @@ background-repeat: no-repeat;
   -webkit-background-clip: text;
   color: transparent;
   position: fixed;
+  top: 0;
+  left: 5%;
   font-size: 2.4rem;
 }
 
@@ -86,9 +99,10 @@ background-repeat: no-repeat;
 .user-badge-container {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 8px;
   position: fixed;
-  right: 20%;
+  right: 10%;
+  top: 0;
 }
 
 .workspace-badge {
@@ -98,6 +112,7 @@ background-repeat: no-repeat;
 .logout-btn {
   /* background: #dc2626;  */
   background: tomato;
+  margin: 4px;
   padding: 8px 15px; 
   width: auto; 
   white-space: nowrap; /* Prevents the logout text from wrapping into two lines */
@@ -107,9 +122,9 @@ background-repeat: no-repeat;
 }
 
 footer {
-  position: fixed;
+  /* position: fixed;
   bottom: 0;
-  left: 38%;
+  left: 38%; */
   margin: 4px;
   /* color: gray; */
   color: orangered;
@@ -126,12 +141,196 @@ footer > a {
   padding-top: 8px;
 }
 
+/* ======== Landing =========== */
+.hero {
+    /* background-color: #007bff; */
+    /* background-color: #4CAF50;
+    color: white; */
+       background: #f8fafc;
+width: 100%;
+ background: #B1ECEF;
+background: linear-gradient(180deg, #B1ECEF, #D2C9FF);
+    text-align: center;
+    padding: 50px 20px;
+
+}
+
+h1 {
+    font-size: 2.5em;
+}
+
+.btn {
+    background-color: #28a745;
+    /* background-color: #fff; */
+    color: white;
+    /* color: #4CAF50; */
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    max-width: 240px;
+    margin: 0 auto;
+}
+
+/* .features, .testimonials {
+    padding: 20px;
+    background-color: white;
+    margin: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+} */
+
+/* ======== TESTIMONIAL =========== */
+#testimonials {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}
+
+.testimonial-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.testimonial {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.quote {
+  font-size: 24px;
+  color: #ff5600;
+}
+
+.pfp img {
+  width: 32px;
+  height: 32px;
+  border-radius: 100%;
+}
+
+/*------------------*/
+.testimonial-carousel {
+    position: relative;
+    max-width: 600px;
+    margin: auto;
+    overflow: hidden;
+}
+
+.testimonial-container {
+    display: flex;
+    transition: transform 0.5s ease;
+}
+
+.testimonial {
+    min-width: 100%;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+
+
+/* ======== FAQ ============ */
+.faq {
+    width: 100%;
+    max-width: 600px;
+    margin: auto;
+}
+
+.faq-item {
+    border: 1px solid #ccc;
+    margin: 10px 0;
+}
+
+.faq-question {
+    background-color: #f1f1f1;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.faq-answer {
+    display: none; /* Hidden by default */
+    padding: 10px;
+}
+
+/* ======= PRICING ========= */
+/* .pricing-container {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+
+.pricing-card {
+  flex: 1 1 30%; 
+  margin: 10px;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+.pricing-card li {
+  list-style-type: none;
+
+} */
+ .pricing-container {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    margin: 20px;
+}
+
+.pricing-card {
+  flex: 1 1 30%;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    width: 330px;
+    /* text-align: center; */
+    margin: 8px;
+}
+
+.pricing-card h3 {
+    font-size: 24px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.pricing-card p {
+    font-size: 16px;
+}
+
+.pricing-card li {
+  list-style-type: none;
+}
+
+.call-to-action {
+    /* background-color: #007bff;
+    color: white; */
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.basic {
+  background-color: rgb(155, 145, 120);
+}
+.pro {
+  background-color: rgb(25, 88, 13);
+}
+
+.features li {
+  list-style-type: none;
+}
+
+
 /* 📱 MOBILE RESPONSIVE MEDIA QUERY (< 600px) */
 @media (max-width: 600px) {
   .dashboard-header {
     flex-direction: column; /* Stack Title vertically above user details */
-    align-items: center; /* Align everything cleanly to the left */
-    gap: 10px;
+    align-items: center; 
+    gap: 8px;
   }
 
   .dashboard-header h1 {
@@ -149,7 +348,7 @@ footer > a {
     gap: 8px;
     width: 100%; */
     font-size: small;
-    top: 15%;
+    top: 8%;
   }
 
   .purged-div {
@@ -166,6 +365,40 @@ footer > a {
     
     font-size: x-small;
   }
+
+  .hero {
+    max-width: 300px;
+  }
+
+  .hero h1 {
+    font-size: 2rem;
+  }
+
+  input {
+    max-width: 280px;
+  }
+
+  .testimonial-carousel {
+
+    max-width: 300px;
+
+}
+
+  .features h2, .faq h2, .testimonial-carousel h2, .pricing-label, .signinh2 {
+    font-size: 1.5rem;
+  }
+  #box label {
+    display: none;
+  }
+  .faq-question {
+    font-size: large;
+    padding: 12px;
+  }
+
+  .pricing-card li {
+    font-size: 0.8rem;
+    text-align: start;
+  }
 }
   </style>
 </head>
@@ -173,9 +406,148 @@ footer > a {
 
   <% if (!user) { %>
     <div class="auth-container">
+
+  <div id="login-box">
+        <header class="hero">
+        <h1>2 Spreadsheet problems solved.<span style="color: #97510f;"> Simply</span>.</h1>
+        <p>Diff &amp; scrub with ScrubSpreadsheet.</p>
+        <!-- <a class="btn" href="#signup">Get Started</a> -->
+        <span class="btn toggle-link" onclick="toggleAuthForms()">Get Started</span>
+    </header>
+    <main>
+        <section class="features">
+            <h2>Features</h2>
+            <ul>
+                <li>Feature 1</li>
+                <li>Feature 2</li>
+                <li>Feature 3</li>
+            </ul>
+        </section>
+        <section class="faq">
+          <h2>FAQs</h2>
+            <div class="faq-item">
+                <h3 class="faq-question">What is ScrubSpreadsheet?</h3>
+                <div class="faq-answer">ScrubSpreadsheet stands for Cascading Style Sheets and is used to style HTML documents.</div>
+            </div>
+            <div class="faq-item">
+                <h3 class="faq-question">How do I use it?</h3>
+                <div class="faq-answer">You can add CSS inline, internally, or externally using a .css file.</div>
+            </div>
+        </section>
+
+        <!-- <section class="testimonials">
+            <h2>Testimonials</h2>
+            <p>See what our customers say.</p>
+        </section> -->
+        <!-- <section id="testimonials">
+  <h3 class="title">What Users Say...</h3>
+  <div class="testimonial-container">
+    <div class="testimonial">
+      <div class="text">
+        <div class="quote">&#8220;</div>
+        <p class="review">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+      </div>
+      <div class="info">
+        <div class="pfp">
+          <img src="https://unavatar.io/github/occiandiaali" alt="User Name" />
+        </div>
+        <div class="name">User Name</div>
+        <div class="job">User Job</div>
+      </div>
+    </div>
+
+  </div>
+</section> -->
+    <section class="testimonial-carousel">
+      <h2>Testimonials</h2>
+        <div class="testimonial-container">
+            <div class="testimonial">
+                <p>"This product changed my life!"</p>
+                <h4>- John Doe</h4>
+            </div>
+            <div class="testimonial">
+                <p>"Excellent service and support!"</p>
+                <h4>- Jane Smith</h4>
+            </div>
+           <div class="testimonial">
+                <p>"Solves my two main problems."</p>
+                <h4>- RowYa Boat</h4>
+            </div>
+            <!-- Add more testimonials as needed -->
+        </div>
+        <button id="prev">Previous</button>
+        <button id="next">Next</button>
+    </section>
+
+
+        <h2 class="pricing-label">Pricing</h2>
+     <!-- <section class="pricing-container">
+      <div class="pricing-card">
+        <h2>Basic</h2>
+        <p>$10/month</p>
+        <ul>
+          <li>Feature 1</li>
+          <li>Feature 2</li>
+        </ul>
+        <button>Sign Up</button>
+      </div>
+      <div class="pricing-card">
+        <h2>Pro</h2>
+        <p>$20/month</p>
+        <ul>
+          <li>Feature 1</li>
+          <li>Feature 2</li>
+          <li>Feature 3</li>
+        </ul>
+        <button>Sign Up</button>
+      </div>
+     </section> -->
+     <section class="pricing-container">
+    <div class="pricing-card">
+        <h3>Basic</h3>
+        <p>$9/month</p>
+        <ul>
+              <li>✓ Try 1 SaaS Boilerplate</li>
+              <li>✓ Scan 1 Verified Domain</li>
+              <li>✓ Get minimal Strategy Guidance</li>
+              <li>❌ No PDF or TXT exports</li>
+        </ul>
+        <button class="call-to-action basic">Get Basic</button>
+    </div>
+        <div class="pricing-card">
+            <h3>Pro</h3>
+            <p>$19/month</p>
+            <ul>
+              <li>✓ Scan up to 100 Verified Domains</li>
+              <li>✓ Additional Supabase DB option</li>
+              <li>✓ Generate unlimited boilerplates</li>
+              <li>✓ Priority Support</li>
+            </ul>
+            <button class="call-to-action pro">Go Pro</button>
+        </div>
+     </section>
+
+   
+     <div id="box">
+      <h2 class="signinh2">Sign in</h2>
+      <div id="login-feedback"></div>
+      
+      <form hx-post="/auth/login" hx-target="#login-feedback" hx-indicator="#login-loader">
+        <label>Email Address</label>
+        <input type="email" name="email" required placeholder="name@domain.com">
+        <label>Password</label>
+        <input type="password" name="password" required placeholder="••••••••">
+        <div id="login-loader" class="auth-indicator">Authenticating credentials...</div>
+        <button type="submit">Sign In</button>
+        
+      </form>
+      <span class="toggle-link" onclick="toggleAuthForms()">Need an account? Register here</span>
+    </div>
+    </main>
+  </div>    
       
 
-      <div id="login-box">
+      <!-- <div id="login-box">
   <h2 style="margin-top:0;">Welcome Back</h2>
   <div id="login-feedback"></div>
   
@@ -189,7 +561,7 @@ footer > a {
   </form>
   <div id="login-loader" class="auth-indicator">Authenticating credentials...</div>
   <span class="toggle-link" onclick="toggleAuthForms()">Need an account? Register here</span>
-</div>
+</div> -->
 
 <div id="register-box" class="hidden">
   <h2 style="margin-top:0;">Create Account</h2>
@@ -200,7 +572,7 @@ footer > a {
     <input type="email" name="email" required placeholder="name@domain.com">
     <label>Create Secure Password</label>
     <input type="password" name="password" required placeholder="••••••••">
-    <button type="submit" style="background:#059669;">Create Free Account</button>
+    <button type="submit" style="background:#059669;">Create Account</button>
     
   </form>
   <div id="register-loader" class="auth-indicator">Provisioning security tokens & database entry...</div>
@@ -208,13 +580,6 @@ footer > a {
 </div>
 
     </div>
-
-    <script>
-      function toggleAuthForms() {
-        document.getElementById('login-box').classList.toggle('hidden');
-        document.getElementById('register-box').classList.toggle('hidden');
-      }
-    </script>
 
   <% } else { %>
 
@@ -255,7 +620,7 @@ footer > a {
 
 <div class="card" id="mask-section">
   <h2>🛡️ Column Masking (Scrub)</h2>
-  <p style="color:#475569;">Redact a highly sensitive column before rendering data back down to web viewing portals.</p>
+  <p style="color:#475569;">Redact a highly sensitive column before sharing with others.</p>
   <form hx-post="/api/mask" hx-encoding="multipart/form-data" hx-target="#mask-output" hx-indicator="#mask-loader">
     <label><strong>Target Spreadsheet</strong></label>
     <input type="file" name="targetFile" required>
@@ -272,5 +637,44 @@ footer > a {
   <% } %>
 
   <footer>&copy; 2026 ScrubSpreadsheet | By <a href="https://occiandiaali.com" target="_blank">occiandiaali.com</a></footer>
+
+      <script>
+      //document.getElementById('landing-box').classList.toggle('hidden')
+      function toggleAuthForms() {
+        document.getElementById('login-box').classList.toggle('hidden');
+        document.getElementById('register-box').classList.toggle('hidden');
+      }
+
+      const questions = document.querySelectorAll('.faq-question');
+
+      questions.forEach(question => {
+          question.addEventListener('click', () => {
+              const answer = question.nextElementSibling;
+              answer.style.display = answer.style.display === 'block' ? 'none' : 'block';
+          });
+      });
+
+    // Testimonial carousel
+    let currentIndex = 0;
+const testimonials = document.querySelectorAll('.testimonial');
+const totalTestimonials = testimonials.length;
+
+document.getElementById('next').addEventListener('click', () => {
+    currentIndex = (currentIndex + 1) % totalTestimonials;
+    updateCarousel();
+});
+
+document.getElementById('prev').addEventListener('click', () => {
+    currentIndex = (currentIndex - 1 + totalTestimonials) % totalTestimonials;
+    updateCarousel();
+});
+
+function updateCarousel() {
+    const offset = -currentIndex * 100;
+    document.querySelector('.testimonial-container').style.transform = `translateX(${offset}%)`;
+}
+  
+
+    </script>
 </body>
 </html>
