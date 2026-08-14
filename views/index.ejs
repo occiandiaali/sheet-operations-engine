@@ -5,39 +5,30 @@
       <link rel="icon" type="image/svg+xml" href="/logo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ScrubSpreadsheet | Spreadsheet Diffing &amp; Column Redaction</title>
+      <meta
+      name="description"
+      content="Redact, encrypt, and share your spreadsheets securely. SheetScrub helps businesses manage sensitive data and comply with GDPR & HIPAA effortlessly."
+    />
+    <meta
+      name="keywords"
+      content="secure spreadsheets, data scrubbing, excel security, redact PII, google sheets privacy, data management app"
+    />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Roboto:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
   <!-- Minified version -->
-<link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+<!-- <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css"> -->
+
+<link rel="stylesheet" href="/css/styles.css" />
 
   <script src="/htmx/htmx.js"></script>
   <style>
-    body { 
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-      /* margin: 40px;  */
-      margin: 0;
-      padding: 0;
-      height: auto;
-    /* background: #f8fafc; */
 
-/* background: #B1ECEF;
-background: linear-gradient(180deg, #B1ECEF, #D2C9FF); */
-
-background: #E5E5E5;
-background: linear-gradient(180deg, #E5E5E5, #242323);
-background-size: cover;
-background-repeat: no-repeat;
-color: #1e293b; 
-}
-    .auth-container { width: 100%; text-align: center; margin: 8px auto; background: white; padding: 8px; border-radius: 12px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
-    .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 30px; max-width: 800px; border: 1px solid #e2e8f0; }
-    /* .auth-container { max-width: 400px; margin: 60px auto; background: white; padding: 35px; border-radius: 12px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; } */
-    /* button { background: #2563eb; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: 500; width: 100%; transition: background 0.2s; } */
-    button { color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: 500; max-width: 240px; transition: background 0.2s; }
-    /* button:hover { background: #1d4ed8; } */
-    /* input { padding: 10px; margin: 8px 0 20px 0; display: block; width: 100%; max-width: 300px; box-sizing: border-box; border: 1px solid #cbd5e1; border-radius: 6px; } */
-    input { padding: 10px; margin: 8px auto 20px auto; display: block; width: 100%; max-width: 300px; box-sizing: border-box; border: 1px solid #cbd5e1; border-radius: 6px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 15px; background: #fff; }
-    th, td { border: 1px solid #e2e8f0; padding: 12px; text-align: left; }
-    th { background: #f1f5f9; }
     .htmx-indicator { display: none; color: #2563eb; font-weight: bold; margin-top: 10px; }
     .htmx-request .htmx-indicator { display: block; }
     .toggle-link { color: #2563eb; text-align: center; cursor: pointer; display: block; margin-top: 15px; font-size: 14px; text-decoration: underline; }
@@ -72,6 +63,14 @@ color: #1e293b;
   cursor: not-allowed;
   pointer-events: none;
 }
+
+/* Main page css */
+button { color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: 500; max-width: 240px; transition: background 0.2s; }
+.card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 30px; max-width: 800px; border: 1px solid #e2e8f0; }
+.main-input { padding: 10px; margin: 8px; display: block; width: 100%; max-width: 300px; box-sizing: border-box; border: 1px solid #cbd5e1; border-radius: 6px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; background: #fff; }
+    th, td { border: 1px solid #e2e8f0; padding: 12px; text-align: left; }
+    th { background: #f1f5f9; }
 
 /* Dashboard Header Container */
 .dashboard-header {
@@ -121,19 +120,6 @@ color: #1e293b;
   background: #8d4444;
 }
 
-footer {
-  /* position: fixed;
-  bottom: 0;
-  left: 38%; */
-  margin: 4px;
-  /* color: gray; */
-  color: orangered;
-  font-size: small;
-}
-footer > a {
-  color: orangered;
-}
-
 .purged-div {
   text-align: center; 
   margin-bottom: 6px; 
@@ -141,193 +127,9 @@ footer > a {
   padding-top: 8px;
 }
 
-/* ======== Landing =========== */
-.hero {
-    /* background-color: #007bff; */
-    /* background-color: #4CAF50;
-    color: white; */
-       background: #f8fafc;
-width: 100%;
- background: #B1ECEF;
-background: linear-gradient(180deg, #B1ECEF, #D2C9FF);
-    text-align: center;
-    padding: 50px 20px;
-
-}
-
-h1 {
-    font-size: 2.5em;
-}
-
-.btn {
-    background-color: #28a745;
-    /* background-color: #fff; */
-    color: white;
-    /* color: #4CAF50; */
-    padding: 10px 20px;
-    text-decoration: none;
-    border-radius: 5px;
-    max-width: 240px;
-    margin: 0 auto;
-}
-
-/* .features, .testimonials {
-    padding: 20px;
-    background-color: white;
-    margin: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-} */
-
-/* ======== TESTIMONIAL =========== */
-#testimonials {
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  align-items: center;
-}
-
-.testimonial-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
-}
-
-.testimonial {
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-}
-
-.quote {
-  font-size: 24px;
-  color: #ff5600;
-}
-
-.pfp img {
-  width: 32px;
-  height: 32px;
-  border-radius: 100%;
-}
-
-/*------------------*/
-.testimonial-carousel {
-    position: relative;
-    max-width: 600px;
-    margin: auto;
-    overflow: hidden;
-}
-
-.testimonial-container {
-    display: flex;
-    transition: transform 0.5s ease;
-}
-
-.testimonial {
-    min-width: 100%;
-    padding: 20px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    text-align: center;
-}
-
-
-
-/* ======== FAQ ============ */
-.faq {
-    width: 100%;
-    max-width: 600px;
-    margin: auto;
-}
-
-.faq-item {
-    border: 1px solid #ccc;
-    margin: 10px 0;
-}
-
-.faq-question {
-    background-color: #f1f1f1;
-    padding: 10px;
-    cursor: pointer;
-}
-
-.faq-answer {
-    display: none; /* Hidden by default */
-    padding: 10px;
-}
-
-/* ======= PRICING ========= */
-/* .pricing-container {
-  display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
-}
-
-.pricing-card {
-  flex: 1 1 30%; 
-  margin: 10px;
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-.pricing-card li {
-  list-style-type: none;
-
-} */
- .pricing-container {
-    display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
-    margin: 20px;
-}
-
-.pricing-card {
-  flex: 1 1 30%;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    padding: 10px;
-    width: 330px;
-    /* text-align: center; */
-    margin: 8px;
-}
-
-.pricing-card h3 {
-    font-size: 24px;
-    margin-bottom: 10px;
-    text-align: center;
-}
-
-.pricing-card p {
-    font-size: 16px;
-}
-
-.pricing-card li {
-  list-style-type: none;
-}
-
-.call-to-action {
-    /* background-color: #007bff;
-    color: white; */
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-.basic {
-  background-color: rgb(155, 145, 120);
-}
-.pro {
-  background-color: rgb(25, 88, 13);
-}
-
-.features li {
-  list-style-type: none;
-}
-
-
 /* 📱 MOBILE RESPONSIVE MEDIA QUERY (< 600px) */
 @media (max-width: 600px) {
-  .dashboard-header {
+    .dashboard-header {
     flex-direction: column; /* Stack Title vertically above user details */
     align-items: center; 
     gap: 8px;
@@ -351,7 +153,7 @@ h1 {
     top: 8%;
   }
 
-  .purged-div {
+    .purged-div {
     margin-top: 30%;
   }
 
@@ -359,228 +161,380 @@ h1 {
     width: 100%; /* Make button full width on mobile for better thumb-tapping UX */
     text-align: center;
   }
-
-  footer {
-    left: 13%;
-    
-    font-size: x-small;
-  }
-
-  .hero {
-    max-width: 300px;
-  }
-
-  .hero h1 {
-    font-size: 2rem;
-  }
-
-  input {
-    max-width: 280px;
-  }
-
-  .testimonial-carousel {
-
-    max-width: 300px;
-
 }
 
-  .features h2, .faq h2, .testimonial-carousel h2, .pricing-label, .signinh2 {
-    font-size: 1.5rem;
-  }
-  #box label {
-    display: none;
-  }
-  .faq-question {
-    font-size: large;
-    padding: 12px;
-  }
-
-  .pricing-card li {
-    font-size: 0.8rem;
-    text-align: start;
-  }
-}
   </style>
 </head>
 <body>
 
   <% if (!user) { %>
-    <div class="auth-container">
-
-  <div id="login-box">
-        <header class="hero">
-        <h1>2 Spreadsheet problems solved.<span style="color: #97510f;"> Simply</span>.</h1>
-        <p>Diff &amp; scrub with ScrubSpreadsheet.</p>
-        <!-- <a class="btn" href="#signup">Get Started</a> -->
-        <span class="btn toggle-link" onclick="toggleAuthForms()">Get Started</span>
+    <div id="landing-div">
+        <!-- HEADER SECTION -->
+    <header>
+      <div class="container header-container">
+        <a href="#" class="logo">🧼 ScrubSpreadsheet</a>
+        <div class="menu-toggle" id="mobile-menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <nav class="nav-menu" id="nav-list">
+          <a href="#about">Features</a>
+          <a href="#how-it-works">How It Works</a>
+          <a href="#faq">FAQ</a>
+          <a href="#login" onclick="toggleAuthForms()">Sign in</a>
+          <a href="#getstarted" class="btn">Get Started</a>
+        </nav>
+      </div>
     </header>
-    <main>
-        <section class="features">
-            <h2>Features</h2>
-            <ul>
-                <li>Feature 1</li>
-                <li>Feature 2</li>
-                <li>Feature 3</li>
-            </ul>
-        </section>
-        <section class="faq">
-          <h2>FAQs</h2>
-            <div class="faq-item">
-                <h3 class="faq-question">What is ScrubSpreadsheet?</h3>
-                <div class="faq-answer">ScrubSpreadsheet stands for Cascading Style Sheets and is used to style HTML documents.</div>
-            </div>
-            <div class="faq-item">
-                <h3 class="faq-question">How do I use it?</h3>
-                <div class="faq-answer">You can add CSS inline, internally, or externally using a .css file.</div>
-            </div>
-        </section>
 
-        <!-- <section class="testimonials">
-            <h2>Testimonials</h2>
-            <p>See what our customers say.</p>
-        </section> -->
-        <!-- <section id="testimonials">
-  <h3 class="title">What Users Say...</h3>
-  <div class="testimonial-container">
-    <div class="testimonial">
-      <div class="text">
-        <div class="quote">&#8220;</div>
-        <p class="review">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
-      </div>
-      <div class="info">
-        <div class="pfp">
-          <img src="https://unavatar.io/github/occiandiaali" alt="User Name" />
+        <!-- HERO SECTION -->
+    <section id="hero">
+      <div class="container hero-grid">
+        <div class="hero-content">
+          <p class="subtitle">Secure and Manage Your Spreadsheets. <span style="color: #b91c1c;">Simply.</span></p>
+          <h1>Protect Your Sensitive Data with Ease</h1>
+          <p class="description">
+            Unlock the power of secure spreadsheet management with our advanced
+            tool. Be one of the first to secure your sensitive business and
+            client data elements automatically.
+          </p>
+          <form class="hero-form custom-submit">
+            <input
+              type="email"
+              class="form-control"
+              placeholder="Enter your business email"
+              required
+            />
+            <button type="submit" class="btn">Join Waitlist</button>
+          </form>
         </div>
-        <div class="name">User Name</div>
-        <div class="job">User Job</div>
-      </div>
-    </div>
-
-  </div>
-</section> -->
-    <section class="testimonial-carousel">
-      <h2>Testimonials</h2>
-        <div class="testimonial-container">
-            <div class="testimonial">
-                <p>"This product changed my life!"</p>
-                <h4>- John Doe</h4>
+        <div class="hero-visual">
+          <div class="mockup-shield">
+            <div class="shield-badge">🛡️</div>
+            <div
+              style="
+                margin-bottom: 15px;
+                font-weight: bold;
+                font-family: var(--font-heading);
+              "
+            >
+              Live Scrubbing Engine...
             </div>
-            <div class="testimonial">
-                <p>"Excellent service and support!"</p>
-                <h4>- Jane Smith</h4>
+            <div class="mockup-row">
+              <span>ID-9482</span> <span>John Doe</span> <span>Active</span>
             </div>
-           <div class="testimonial">
-                <p>"Solves my two main problems."</p>
-                <h4>- RowYa Boat</h4>
+            <div class="mockup-row scrubbed">
+              <span>SSN-2049</span> <span>[REDACTED]</span> <span>Hidden</span>
             </div>
-            <!-- Add more testimonials as needed -->
+            <div class="mockup-row">
+              <span>ID-2941</span> <span>Jane Smith</span> <span>Active</span>
+            </div>
+            <div class="mockup-row scrubbed">
+              <span>CC-9402</span> <span>[ENCRYPTED]</span> <span>Locked</span>
+            </div>
+          </div>
         </div>
-        <button id="prev">Previous</button>
-        <button id="next">Next</button>
+      </div>
     </section>
 
+    <!-- ABOUT SECTION -->
+    <section id="about">
+      <div class="container">
+        <div class="section-header">
+          <h2>Protect Your Data Ecosystem</h2>
+          <blockquote>
+            "Spreadsheets are the lifeblood of business operations, but they are
+            highly vulnerable to catastrophic leaks, unintended sharing, and
+            compliance failures. SheetScrub bridges the flexibility of grid
+            computing with strict compliance architecture."
+          </blockquote>
+        </div>
+        <div class="feature-grid">
+          <div class="feature-card">
+            <span class="feature-icon">🛡️</span>
+            <h3>End-to-End Encryption</h3>
+            <p>
+              Your data elements are encrypted on your local endpoint
+              architecture before ever touching secondary layers. Your
+              encryption keys remain completely under your sovereign control.
+            </p>
+          </div>
+          <div class="feature-card">
+            <span class="feature-icon">🎨</span>
+            <h3>User-Friendly Interface</h3>
+            <p>
+              No steep learning curves or enterprise system updates required.
+              Drag and drop features work natively within modern workspace
+              behaviors.
+            </p>
+          </div>
+          <div class="feature-card">
+            <span class="feature-icon">🔑</span>
+            <h3>Data Access Controls</h3>
+            <p>
+              Enforce clean security boundaries. Limit exact users down to cell,
+              column, or workbook row scopes dynamically.
+            </p>
+          </div>
+          <div class="feature-card">
+            <span class="feature-icon">🔄</span>
+            <h3>Secure Backups</h3>
+            <p>
+              Automated, snapshot-based version histories are securely
+              maintained to keep data states completely recoverable across
+              runtime failures.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
 
-        <h2 class="pricing-label">Pricing</h2>
-     <!-- <section class="pricing-container">
-      <div class="pricing-card">
-        <h2>Basic</h2>
-        <p>$10/month</p>
-        <ul>
-          <li>Feature 1</li>
-          <li>Feature 2</li>
-        </ul>
-        <button>Sign Up</button>
+    <!-- HOW IT WORKS SECTION -->
+    <section id="how-it-works">
+      <div class="container">
+        <div class="section-header">
+          <h2>How It Works</h2>
+        </div>
+        <div class="step-grid">
+          <div class="step-card">
+            <div class="step-icon">📝</div>
+            <h3>1. Sign Up Quickly</h3>
+            <p>
+              Create your profile in under a minute to claim an exclusive early
+              queue placement ahead of the live launch window.
+            </p>
+          </div>
+          <div class="step-card">
+            <div class="step-icon">🧼</div>
+            <h3>2. Secure Your Spreadsheets</h3>
+            <p>
+              Our automation rules process local file layers to extract,
+              isolate, and mask sensitive PII elements natively.
+            </p>
+          </div>
+          <div class="step-card">
+            <div class="step-icon">🔓</div>
+            <h3>3. Access Safely</h3>
+            <p>
+              Query or review secure information spaces directly from
+              authenticated terminals with complete audit logging intact.
+            </p>
+          </div>
+        </div>
       </div>
-      <div class="pricing-card">
-        <h2>Pro</h2>
-        <p>$20/month</p>
-        <ul>
-          <li>Feature 1</li>
-          <li>Feature 2</li>
-          <li>Feature 3</li>
-        </ul>
-        <button>Sign Up</button>
+    </section>
+
+    <!-- CUSTOMER TESTIMONIAL SECTION -->
+    <section id="testimonials">
+      <div class="container">
+        <div class="section-header">
+          <h2>Our Users Say</h2>
+        </div>
+        <div class="testimonial-grid">
+          <div class="testimonial-card">
+            <blockquote>
+              "Before using SheetScrub, sharing internal financial projections
+              with downstream agencies felt like an accident waiting to happen.
+              Now, we sanitize core rows instantly."
+            </blockquote>
+            <div class="profile-container">
+              <div class="avatar" style="color: white">👩‍💼</div>
+              <div class="profile-info">
+                <h4>Sarah Jenkins</h4>
+                <p>CFO at FinTech ScaleUp</p>
+              </div>
+            </div>
+          </div>
+          <div class="testimonial-card">
+            <blockquote>
+              "Data privacy compliance workflows inside human resource sheets
+              used to take up hours of our week. SheetScrub simplified our
+              structural approach entirely."
+            </blockquote>
+            <div class="profile-container">
+              <div class="avatar" style="color: white">👨‍💻</div>
+              <div class="profile-info">
+                <h4>Marcus Chen</h4>
+                <p>Head of People at HealthLink</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <a href="#" class="more-link">More Testimonials &rarr;</a>
       </div>
-     </section> -->
-     <section class="pricing-container">
-    <div class="pricing-card">
-        <h3>Basic</h3>
-        <p>$9/month</p>
-        <ul>
-              <li>✓ Try 1 SaaS Boilerplate</li>
-              <li>✓ Scan 1 Verified Domain</li>
+    </section>
+
+    <!-- FAQ SECTION -->
+    <section id="faq">
+      <div class="container">
+        <div class="section-header">
+          <h2>Frequently Asked Questions</h2>
+        </div>
+        <div class="faq-container">
+          <div class="faq-item">
+            <div class="faq-question">
+              <h3>How does SheetScrub safely protect system data?</h3>
+              <span class="faq-toggle-icon">+</span>
+            </div>
+            <div class="faq-answer">
+              <p>
+                We leverage industrial-grade AES-256 standard structural
+                cryptographic layers. Secure tokenization safely isolates your
+                database contents locally prior to secondary infrastructure
+                ingestion.
+              </p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-question">
+              <h3>
+                Does it integrate into modern spreadsheets out of the box?
+              </h3>
+              <span class="faq-toggle-icon">+</span>
+            </div>
+            <div class="faq-answer">
+              <p>
+                Yes. SheetScrub seamlessly integrates with .xlsx, .csv formats,
+                and directly connects into Google Drive systems via api
+                pipelines.
+              </p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-question">
+              <h3>Is SheetScrub compliant with GDPR and HIPAA frameworks?</h3>
+              <span class="faq-toggle-icon">+</span>
+            </div>
+            <div class="faq-answer">
+              <p>
+                Absolutely. The platform is explicitly architected around global
+                security standards to assist compliance workflows with precise
+                target protection constraints.
+              </p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-question">
+              <h3>When is the general launch date window scheduled?</h3>
+              <span class="faq-toggle-icon">+</span>
+            </div>
+            <div class="faq-answer">
+              <p>
+                We are rolling out initial staging waves shortly. Registering
+                onto our active waitlist unlocks direct priority updates and
+                discounted access privileges upon general release.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA SECTION -->
+    <section id="getstarted">
+      <div class="container">
+        <div class="section-header">
+          <h2>Get Started Now</h2>
+        </div>
+        <div class="cta-grid">
+          <div class="cta-box">
+            <h3>Sign Up for Priority Access</h3>
+            <div id="register-feedback"></div>
+            <form hx-post="/auth/register" hx-target="#register-feedback" hx-indicator="#register-loader">
+              <input
+                type="email"
+                name="email"
+                class="form-control"
+                placeholder="Business Email Address"
+                required
+              />
+              <input type="password" name="password" class="form-control" required placeholder="Min. 8 character password..">
+                <fieldset style="padding: 12px;margin-bottom: 8px;">
+    <legend>Select your plan:</legend>
+    <!-- <div>
+      <input type="radio" id="freeplan" name="free" value="free" />
+      <label for="freeplan">Free Trial</label>
+    </div> -->
+    
+    <div>
+      <input type="radio" id="basicplan" name="basic" value="basic" />
+      <label for="basicplan" style="color: yellow;">Basic ($9/m)</label><br/>
+              <ul class="plan-ul">
+              <li>✓ Secure Cloud-Based Processing</li>
+              <li>✓ Minimal Spreadsheet scans</li>
               <li>✓ Get minimal Strategy Guidance</li>
               <li>❌ No PDF or TXT exports</li>
         </ul>
-        <button class="call-to-action basic">Get Basic</button>
     </div>
-        <div class="pricing-card">
-            <h3>Pro</h3>
-            <p>$19/month</p>
-            <ul>
-              <li>✓ Scan up to 100 Verified Domains</li>
+    
+    
+    <div style="margin-top: 6px;">
+      <input type="radio" id="advancedplan" name="advanced" value="advanced" />
+      <label for="advancedplan" style="color: yellowgreen;">Advanced ($19/m)</label><br/>
+                  <ul class="plan-ul">
+              <li>✓ Unlimited File Exports</li>
               <li>✓ Additional Supabase DB option</li>
               <li>✓ Generate unlimited boilerplates</li>
               <li>✓ Priority Support</li>
             </ul>
-            <button class="call-to-action pro">Go Pro</button>
-        </div>
-     </section>
-
-   
-     <div id="box">
-      <h2 class="signinh2">Sign in</h2>
-      <div id="login-feedback"></div>
-      
-      <form hx-post="/auth/login" hx-target="#login-feedback" hx-indicator="#login-loader">
-        <label>Email Address</label>
-        <input type="email" name="email" required placeholder="name@domain.com">
-        <label>Password</label>
-        <input type="password" name="password" required placeholder="••••••••">
-        <div id="login-loader" class="auth-indicator">Authenticating credentials...</div>
-        <button type="submit">Sign In</button>
-        
-      </form>
-      <span class="toggle-link" onclick="toggleAuthForms()">Need an account? Register here</span>
     </div>
-    </main>
-  </div>    
-      
+    
+  </fieldset>
 
-      <!-- <div id="login-box">
+              <button type="submit" class="btn" style="width: 100%">
+                Sign Up
+              </button>
+            </form>
+          </div>
+          <div class="cta-box">
+            <h3>Free Trial</h3>
+            <p>
+              Take <strong>ScrubSpreadsheet</strong> for a spin! Try out our diffing &amp; scrubbing features for free! See if it's what you're looking for.
+            </p>
+            <form class="custom-submit">
+              <input
+                type="email"
+                class="form-control"
+                placeholder="Email Address"
+                required
+              />
+              <!-- <div
+                style="margin-bottom: 95px"
+                class="desktop-spacing-spacer"
+              ></div> -->
+              <button
+                type="submit"
+                class="btn btn-secondary"
+                style="width: 100%"
+              >
+                Free Trial
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+    <footer class="landing-footer">&copy; 2026 ScrubSpreadsheet | by <a href="https://occiandiaali.com" target="_blank">Occian F Diaali</a></footer>
+    </div>
+
+    <!-- Login Form -->
+     <div id="login" class="hidden cta-box">
   <h2 style="margin-top:0;">Welcome Back</h2>
   <div id="login-feedback"></div>
-  
-  <form hx-post="/auth/login" hx-target="#login-feedback" hx-indicator="#login-loader">
-    <label>Email Address</label>
-    <input type="email" name="email" required placeholder="name@domain.com">
-    <label>Password</label>
-    <input type="password" name="password" required placeholder="••••••••">
-    <button type="submit">Sign In</button>
-    
-  </form>
   <div id="login-loader" class="auth-indicator">Authenticating credentials...</div>
-  <span class="toggle-link" onclick="toggleAuthForms()">Need an account? Register here</span>
-</div> -->
-
-<div id="register-box" class="hidden">
-  <h2 style="margin-top:0;">Create Account</h2>
-  <div id="register-feedback"></div>
   
-  <form hx-post="/auth/register" hx-target="#register-feedback" hx-indicator="#register-loader">
+  <form hx-post="/auth/login" hx-target="#login-feedback" hx-indicator="#login-loader" class="custom-submit">
     <label>Email Address</label>
-    <input type="email" name="email" required placeholder="name@domain.com">
-    <label>Create Secure Password</label>
-    <input type="password" name="password" required placeholder="••••••••">
-    <button type="submit" style="background:#059669;">Create Account</button>
+    <input type="email" name="email" class="form-control" required placeholder="name@domain.com">
+    <label>Password</label>
+    <input type="password" name="password" class="form-control" required placeholder="••••••••">
+    <button type="submit" class="btn btn-secondary" style="width: 100%;background-color: green;color: wheat;">Sign In</button>
     
   </form>
-  <div id="register-loader" class="auth-indicator">Provisioning security tokens & database entry...</div>
-  <span class="toggle-link" onclick="toggleAuthForms()">Already have an account? Sign in</span>
+  <a class="toggle-link" href="/#getstarted" onclick="toggleAuthForms()">Not registered? Get Started</a>
+  <footer class="dofix">&copy; 2026 ScrubSpreadsheet | by <a href="https://occiandiaali.com" target="_blank">Occian F Diaali</a></footer>
 </div>
-
-    </div>
-
   <% } else { %>
 
     <div class="dashboard-header">
@@ -604,15 +558,15 @@ h1 {
     
       <div id="purged-div"></div>
 
-      <div class="card" id="diff-section">
+    <div class="card" id="diff-section">
   <h2>🔍 Version Comparison Engine (Diff)</h2>
   <p style="color:#475569;">Upload two versions of a spreadsheet to instantly cross-reference row changes.</p>
   <form hx-post="/api/diff" hx-encoding="multipart/form-data" hx-target="#diff-output" hx-indicator="#diff-loader">
     <label><strong>Original Sheet (v1)</strong></label>
-    <input type="file" name="fileA" required>
+    <input type="file" name="fileA" class="main-input" required>
     <label><strong>Modified Sheet (v2)</strong></label>
-    <input type="file" name="fileB" required>
-    <button type="submit">Analyze</button>
+    <input type="file" name="fileB" class="main-input" required>
+    <button type="submit" style="background:#523f0b;color: #cbd5e1;">Analyze</button>
   </form>
   <div id="diff-loader" class="htmx-indicator">Parsing sheets and calculating diffs...</div>
   <div id="diff-output"></div>
@@ -623,57 +577,54 @@ h1 {
   <p style="color:#475569;">Redact a highly sensitive column before sharing with others.</p>
   <form hx-post="/api/mask" hx-encoding="multipart/form-data" hx-target="#mask-output" hx-indicator="#mask-loader">
     <label><strong>Target Spreadsheet</strong></label>
-    <input type="file" name="targetFile" required>
+    <input type="file" name="targetFile" class="main-input" required>
     <!-- <label><strong>Column Name to Redact</strong> (Case sensitive, e.g., <em>Annual Salary (USD)</em>)</label>
     <input type="text" name="columnName" placeholder="Annual Salary (USD)" required> -->
     <label><strong>Column Name(s) to Redact</strong> (e.g., <em>Annual Salary (USD), Full Name</em>)</label>
-<input type="text" name="columnName" placeholder="Separate multiple names with commas" required>
+<input type="text" name="columnName" class="main-input" placeholder="Separate multiple names with commas" required>
     <button type="submit" style="background:#0f766e;">Scrub &amp; Save View</button>
   </form>
   <div id="mask-loader" class="htmx-indicator">Executing server-side scrubbing loop...</div>
   <div id="mask-output"></div>
 </div>
     </div>
+  <footer style="font-size: small;padding: 8px;">&copy; 2026 ScrubSpreadsheet | by <a href="https://occiandiaali.com" target="_blank" style="text-decoration: underline;">Occian F Diaali</a></footer>
   <% } %>
 
-  <footer>&copy; 2026 ScrubSpreadsheet | By <a href="https://occiandiaali.com" target="_blank">occiandiaali.com</a></footer>
 
-      <script>
-      //document.getElementById('landing-box').classList.toggle('hidden')
+<!-- INTERACTIVE SCRIPTING -->
+<script>
       function toggleAuthForms() {
-        document.getElementById('login-box').classList.toggle('hidden');
-        document.getElementById('register-box').classList.toggle('hidden');
+        document.getElementById('login').classList.toggle('hidden');
+       // document.getElementById('register-box').classList.toggle('hidden');
+       document.getElementById('landing-div').classList.toggle('hidden');
       }
+      // Mobile Navigation Toggle
+      const mobileMenu = document.getElementById("mobile-menu");
+      const navList = document.getElementById("nav-list");
 
-      const questions = document.querySelectorAll('.faq-question');
-
-      questions.forEach(question => {
-          question.addEventListener('click', () => {
-              const answer = question.nextElementSibling;
-              answer.style.display = answer.style.display === 'block' ? 'none' : 'block';
-          });
+      mobileMenu.addEventListener("click", () => {
+        navList.classList.toggle("active");
       });
 
-    // Testimonial carousel
-    let currentIndex = 0;
-const testimonials = document.querySelectorAll('.testimonial');
-const totalTestimonials = testimonials.length;
+      // Close navbar when clicking any route element locally
+      document.querySelectorAll(".nav-menu a").forEach((link) => {
+        link.addEventListener("click", () => {
+          navList.classList.remove("active");
+        });
+      });
 
-document.getElementById('next').addEventListener('click', () => {
-    currentIndex = (currentIndex + 1) % totalTestimonials;
-    updateCarousel();
-});
-
-document.getElementById('prev').addEventListener('click', () => {
-    currentIndex = (currentIndex - 1 + totalTestimonials) % totalTestimonials;
-    updateCarousel();
-});
-
-function updateCarousel() {
-    const offset = -currentIndex * 100;
-    document.querySelector('.testimonial-container').style.transform = `translateX(${offset}%)`;
-}
-  
+      // Accordion functionality for FAQ system
+      const faqItems = document.querySelectorAll(".faq-item");
+      faqItems.forEach((item) => {
+        item.addEventListener("click", () => {
+          const isOpen = item.classList.contains("active");
+          faqItems.forEach((i) => i.classList.remove("active"));
+          if (!isOpen) {
+            item.classList.add("active");
+          }
+        });
+      });
 
     </script>
 </body>
