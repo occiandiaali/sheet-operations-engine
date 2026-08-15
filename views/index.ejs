@@ -128,6 +128,72 @@ button { color: white; border: none; padding: 12px 20px; border-radius: 6px; cur
   padding-top: 8px;
 }
 
+/* Drag-and-Drop Dropzone Container */
+.drop-zone {
+  display: block;
+  border: 2px dashed #cbd5e1;
+  border-radius: 8px;
+  padding: 24px;
+  text-align: center;
+  background-color: #f8fafc;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  margin-top: 6px;
+}
+
+.drop-zone:hover,
+.drop-zone.drag-over {
+  border-color: #0f766e;
+  background-color: #f0fdf4;
+}
+
+.drop-zone-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.drop-zone-icon {
+  font-size: 28px;
+}
+
+.drop-zone-text {
+  margin: 0;
+  font-size: 14px;
+  color: #475569;
+}
+
+.browse-link {
+  color: #0f766e;
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.file-name-display {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+.file-name-display.file-selected {
+  color: #0f766e;
+  font-weight: bold;
+}
+
+/* Hide native file input while keeping it accessible for browser validation */
+.hidden-file-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
 /* 📱 MOBILE RESPONSIVE MEDIA QUERY (< 600px) */
 @media (max-width: 600px) {
     .dashboard-header {
@@ -570,12 +636,35 @@ button { color: white; border: none; padding: 12px 20px; border-radius: 6px; cur
   <h2>🔍 Version Comparison Engine (Diff)</h2>
   <p style="color:#475569;">Upload two versions of a spreadsheet to instantly cross-reference row changes.</p>
   <form hx-post="/api/diff" hx-encoding="multipart/form-data" hx-target="#diff-output" hx-indicator="#diff-loader">
-    <label><strong>Original Sheet (v1)</strong></label>
-    <input type="file" name="fileA" class="main-input" required>
-    <label><strong>Modified Sheet (v2)</strong></label>
-    <input type="file" name="fileB" class="main-input" required>
-    <button type="submit" style="background:#523f0b;color: #cbd5e1;">Analyze</button>
-  </form>
+  
+  <!-- File A Dropzone (v1) -->
+  <label><strong>Original Sheet (v1)</strong></label>
+  <label for="fileA" id="drop-zone-a" class="drop-zone">
+    <div class="drop-zone-content">
+      <span class="drop-zone-icon">📄</span>
+      <p class="drop-zone-text">
+        <strong>Drag &amp; drop Original (v1)</strong> or <span class="browse-link">browse</span>
+      </p>
+      <span id="file-a-display" class="file-name-display">No file selected (.xlsx, .xls, .csv)</span>
+    </div>
+  </label>
+  <input type="file" id="fileA" name="fileA" style="display: none;" required accept=".xlsx, .xls, .csv">
+
+  <!-- File B Dropzone (v2) -->
+  <label style="margin-top: 15px;"><strong>Modified Sheet (v2)</strong></label>
+  <label for="fileB" id="drop-zone-b" class="drop-zone">
+    <div class="drop-zone-content">
+      <span class="drop-zone-icon">📝</span>
+      <p class="drop-zone-text">
+        <strong>Drag &amp; drop Modified (v2)</strong> or <span class="browse-link">browse</span>
+      </p>
+      <span id="file-b-display" class="file-name-display">No file selected (.xlsx, .xls, .csv)</span>
+    </div>
+  </label>
+  <input type="file" id="fileB" name="fileB" style="display: none;" required accept=".xlsx, .xls, .csv">
+
+  <button type="submit" style="background:#523f0b; color: #cbd5e1; margin-top: 15px;">Analyze Discrepancies</button>
+</form>
   <div id="diff-loader" class="htmx-indicator">Parsing sheets and calculating diffs...</div>
   <div id="diff-output"></div>
 </div>
@@ -584,15 +673,28 @@ button { color: white; border: none; padding: 12px 20px; border-radius: 6px; cur
   <h2>🛡️ Column Masking (Scrub)</h2>
   <p style="color:#475569;">Redact a highly sensitive column before sharing with others.</p>
   <form hx-post="/api/mask" hx-encoding="multipart/form-data" hx-target="#mask-output" hx-indicator="#mask-loader">
-    <label><strong>Target Spreadsheet</strong></label>
-    <input type="file" name="targetFile" class="main-input" required>
-    <!-- <label><strong>Column Name to Redact</strong> (Case sensitive, e.g., <em>Annual Salary (USD)</em>)</label>
-    <input type="text" name="columnName" placeholder="Annual Salary (USD)" required> -->
-    <!-- <label><strong>Column(s) to Redact</strong> (e.g., <em>Annual Salary (USD), Full Name</em>)</label> -->
-     <label><strong>Column(s) to redact</strong> (Please, enter the column title)</label>
-<input type="text" name="columnName" class="main-input" placeholder="Separate multiple names with commas" required>
-    <button type="submit" style="background:#0f766e;">Scrub &amp; Save View</button>
-  </form>
+  <label><strong>Target Spreadsheet</strong></label>
+
+  <!-- HTML label triggers the file input natively without JS dependencies -->
+  <label for="targetFile" id="drop-zone" class="drop-zone">
+    <div class="drop-zone-content">
+      <span class="drop-zone-icon">📁</span>
+      <p class="drop-zone-text">
+        <strong>Drag &amp; drop your spreadsheet here</strong> or <span class="browse-link">browse files</span>
+      </p>
+      <span id="file-name-display" class="file-name-display">No file selected (.xlsx, .xls, .csv)</span>
+    </div>
+  </label>
+
+  <!-- Native file input linked via "for=targetFile" -->
+  <input type="file" id="targetFile" name="targetFile" style="display: none;" required accept=".xlsx, .xls, .csv">
+
+      <div style="height: 24px;"></div>
+  <label>Enter the name(s) of <strong>column(s) to redact</strong> below.</label>
+  <input type="text" name="columnName" class="main-input" placeholder="Separate multiple names with commas" required>
+
+  <button type="submit" style="background:#0f766e; margin-top: 15px;">Scrub &amp; Save View</button>
+</form>
   <div id="mask-loader" class="htmx-indicator">Executing server-side scrubbing loop...</div>
   <div id="mask-output"></div>
 </div>
@@ -633,8 +735,88 @@ button { color: white; border: none; padding: 12px 20px; border-radius: 6px; cur
             item.classList.add("active");
           }
         });
-      });
+      });     
 
     </script>
+
+<script>
+  (function initDropZones() {
+    // 1. Global browser file-drop interceptor
+    window.addEventListener('dragover', (e) => e.preventDefault(), false);
+    window.addEventListener('drop', (e) => e.preventDefault(), false);
+
+    // Helper to attach drag-and-drop logic to any given zone/input pair
+    function bindZone(zoneId, inputId, displayId) {
+      const dropZone = document.getElementById(zoneId);
+      const fileInput = document.getElementById(inputId);
+      const fileNameDisplay = document.getElementById(displayId);
+
+      if (!dropZone || !fileInput) return;
+
+      // Visual Drag State
+      ['dragenter', 'dragover'].forEach(evt => {
+        dropZone.addEventListener(evt, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropZone.classList.add('drag-over');
+        });
+      });
+
+      ['dragleave', 'drop'].forEach(evt => {
+        dropZone.addEventListener(evt, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropZone.classList.remove('drag-over');
+        });
+      });
+
+      // Handle Drop
+      dropZone.addEventListener('drop', (e) => {
+        const files = e.dataTransfer && e.dataTransfer.files;
+
+        if (files && files.length > 0) {
+          try {
+            const dt = new DataTransfer();
+            dt.items.add(files[0]);
+            fileInput.files = dt.files;
+          } catch (err) {
+            fileInput.files = files;
+          }
+
+          fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      });
+
+      // Update UI Display Label
+      fileInput.addEventListener('change', () => {
+        if (fileInput.files && fileInput.files.length > 0) {
+          fileNameDisplay.textContent = `✓ Selected: ${fileInput.files[0].name}`;
+          fileNameDisplay.classList.add('file-selected');
+        } else {
+          fileNameDisplay.textContent = 'No file selected (.xlsx, .xls, .csv)';
+          fileNameDisplay.classList.remove('file-selected');
+        }
+      });
+    }
+
+    function setupAllDropzones() {
+      // Masking Dropzone
+      bindZone('drop-zone', 'targetFile', 'file-name-display');
+      
+      // Diffing Dropzones
+      bindZone('drop-zone-a', 'fileA', 'file-a-display');
+      bindZone('drop-zone-b', 'fileB', 'file-b-display');
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setupAllDropzones);
+    } else {
+      setupAllDropzones();
+    }
+
+    // Support HTMX dynamic DOM re-renders
+    document.body.addEventListener('htmx:afterSettle', setupAllDropzones);
+  })();
+</script>  
 </body>
 </html>
