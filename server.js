@@ -11,6 +11,10 @@ const fs = require("fs");
 const User = require("./models/User");
 const Sheet = require("./models/Sheet");
 
+// Middleware
+//const isAuthenticated = require("./middleware/isAuthenticated");
+const checkScanQuota = require("./middleware/checkQuota");
+
 const app = express();
 const upload = multer({
   dest: "uploads/",
@@ -37,10 +41,39 @@ app.use(express.static("public"));
 const JWT_SECRET = process.env.JWT_SECRET;
 
 // --- Production-Grade JWT Verification Middleware ---
+// async function isAuthenticated(req, res, next) {
+//   const token = req.cookies.token;
+//   if (!token) {
+//     // If it's an HTMX request, we tell the browser frontend to hard-redirect to home/login view
+//     if (req.headers["hx-request"]) {
+//       res.header("HX-Redirect", "/");
+//       return res.send();
+//     }
+//     return res.redirect("/");
+//   }
+
+//   try {
+//     const decoded = jwt.verify(token, JWT_SECRET);
+//     const user = await User.findById(decoded.userId).select("-password");
+//     if (!user) {
+//       res.clearCookie("token");
+//       return res.redirect("/");
+//     }
+//     req.user = user; // Attach real database user instance to context
+//     next();
+//   } catch (err) {
+//     res.clearCookie("token");
+//     if (req.headers["hx-request"]) {
+//       res.header("HX-Redirect", "/");
+//       return res.send();
+//     }
+//     return res.redirect("/");
+//   }
+// }
 async function isAuthenticated(req, res, next) {
   const token = req.cookies.token;
+
   if (!token) {
-    // If it's an HTMX request, we tell the browser frontend to hard-redirect to home/login view
     if (req.headers["hx-request"]) {
       res.header("HX-Redirect", "/");
       return res.send();
@@ -50,14 +83,24 @@ async function isAuthenticated(req, res, next) {
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    const user = await User.findById(decoded.userId).select("-password");
+
+    // Check both potential key names just in case
+    const targetId = decoded.userId || decoded.id || decoded._id;
+    const user = await User.findById(targetId).select("-password");
+
     if (!user) {
       res.clearCookie("token");
+      if (req.headers["hx-request"]) {
+        res.header("HX-Redirect", "/");
+        return res.send();
+      }
       return res.redirect("/");
     }
+
     req.user = user; // Attach real database user instance to context
     next();
   } catch (err) {
+    console.error("Auth Middleware Failure:", err.message);
     res.clearCookie("token");
     if (req.headers["hx-request"]) {
       res.header("HX-Redirect", "/");
@@ -154,16 +197,27 @@ app.get("/", async (req, res) => {
 
 // Registration Processor
 app.post("/auth/register", async (req, res) => {
-  const { email, password } = req.body;
+  //const { email, password } = req.body;
+  const { email, password, subPlan } = req.body;
+  let allowedScans = 2;
   try {
     let existingUser = await User.findOne({ email });
     if (existingUser) {
       return res
         .status(400)
-        .send('<p style="color:red;">Email already registered.</p>');
+        .send(
+          '<p style="color:red;">Nope! We cannot register this email. That is all we know.</p>',
+        );
     }
 
-    const user = new User({ email, password });
+    if (subPlan === "basic") {
+      allowedScans = 20;
+    }
+    if (subPlan === "advanced") {
+      allowedScans = 100;
+    }
+
+    const user = new User({ email, password, subPlan, maxScans: allowedScans });
     await user.save();
 
     // Log user in automatically post-registration
@@ -224,6 +278,7 @@ app.post("/auth/logout", (req, res) => {
 app.post(
   "/api/diff",
   isAuthenticated,
+  checkScanQuota,
   upload.fields([{ name: "fileA" }, { name: "fileB" }]),
   async (req, res) => {
     let paths = [];
@@ -323,8 +378,30 @@ app.post(
         }
       }
 
+      // 💡 ATOMIC DECREMENT: Decrement maxScans only when processing completely succeeds
+      const updatedUser = await User.findOneAndUpdate(
+        { _id: req.user._id, maxScans: { $gt: 0 } },
+        { $inc: { maxScans: -1 } },
+        { returnDocument: "after" },
+      );
+
+      if (!updatedUser) {
+        paths.forEach(cleanFile);
+        return res
+          .status(200)
+          .send(
+            '<p style="color:red;">Scan limit reached or session expired.</p>',
+          );
+      }
+      // 💡 Update req.user properties safely without replacing the object reference
+      req.user.maxScans = updatedUser.maxScans;
+
       paths.forEach(cleanFile);
-      res.render("diff-result", { diffResults });
+      res.setHeader("HX-Trigger", "scanCompleted");
+      res.render("diff-result", {
+        diffResults,
+        remainingScans: req.user.maxScans,
+      });
     } catch (error) {
       paths.forEach(cleanFile);
       console.error(error);
@@ -340,6 +417,7 @@ app.post(
 app.post(
   "/api/mask",
   isAuthenticated,
+  checkScanQuota,
   upload.single("targetFile"),
   async (req, res) => {
     try {
@@ -364,7 +442,8 @@ app.post(
           const compressedKey = key.toLowerCase().replace(/\s+/g, "");
 
           if (targetColumnsArray.includes(compressedKey)) {
-            newRow[key] = "⚠️ [MASKED/RESTRICTED]";
+            // newRow[key] = "⚠️ [MASKED/RESTRICTED]";
+            newRow[key] = "⚠️ [RESTRICTED]";
           } else {
             newRow[key] = row[key];
           }
@@ -378,20 +457,42 @@ app.post(
       const savedSheet = new Sheet({
         userId: req.user._id,
         filename: req.file.originalname,
-        data: rawData, // 💡 PRO-TIP: Save the RAW data to the database so you can dynamically mask it later for different links!
+        data: rawData, // 💡 PRO-TIP: Save the RAW data to the database so we can dynamically mask it later for different links!
         maskedColumns: targetColumnsArray, // Save the compressed columns array
       });
       await savedSheet.save();
+
+      // 💡 ATOMIC DECREMENT: Subtract 1 maxScan count in DB on success
+      const updatedUser = await User.findOneAndUpdate(
+        { _id: req.user._id, maxScans: { $gt: 0 } },
+        { $inc: { maxScans: -1 } },
+        { returnDocument: "after" },
+      );
+
+      if (!updatedUser) {
+        paths.forEach(cleanFile);
+        return res
+          .status(200)
+          .send(
+            '<p style="color:red;">Scan limit reached or session expired.</p>',
+          );
+      }
+      // 💡 Update req.user properties safely without replacing the object reference
+      req.user.maxScans = updatedUser.maxScans;
 
       // Generate the shareable link to send back to the UI
       const shareLink = `${req.protocol}://${req.get("host")}/shared/${savedSheet.shareId}`;
 
       cleanFile(req.file.path);
-      // Pass the shareLink down to your view template
+
+      res.setHeader("HX-Trigger", "scanCompleted");
+
+      // Pass the shareLink down to our view template
       res.render("mask-result", {
         headers,
         rows: maskedData.slice(0, 50),
         shareLink,
+        remainingScans: req.user.maxScans,
       });
     } catch (error) {
       if (req.file) cleanFile(req.file.path);
@@ -400,6 +501,25 @@ app.post(
     }
   },
 );
+
+// Small lightweight endpoint to return updated maxScans count fragment
+app.get("/api/user/scans-count", isAuthenticated, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) return res.send("<span>0</span>");
+
+    res.send(`
+      <strong style="margin-right: 6px;">Remaining scans:</strong> 
+      <span style="background: ${user.maxScans > 0 ? "#dcfce7" : "#fee2e2"}; 
+                   color: ${user.maxScans > 0 ? "#15803d" : "#b91c1c"}; 
+                   padding: 4px 10px; border-radius: 20px; font-weight: bold;">
+        ${user.maxScans}
+      </span>
+    `);
+  } catch (err) {
+    res.send("<span>--</span>");
+  }
+});
 
 // Public Endpoint for Team Members/Guests
 app.get("/shared/:shareId", async (req, res) => {
@@ -415,7 +535,8 @@ app.get("/shared/:shareId", async (req, res) => {
       Object.keys(row).forEach((key) => {
         const compressedKey = key.toLowerCase().replace(/\s+/g, "");
         if (sheet.maskedColumns.includes(compressedKey)) {
-          newRow[key] = "⚠️ [RESTRICTED ACCESS]";
+          // newRow[key] = "⚠️ [RESTRICTED ACCESS]";
+          newRow[key] = "⚠️ [RESTRICTED]";
         } else {
           newRow[key] = row[key];
         }

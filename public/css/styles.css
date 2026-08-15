@@ -124,7 +124,11 @@ header {
   font-size: 1.5rem;
   font-family: var(--font-heading);
   font-weight: 700;
-  color: var(--primary);
+  /* color: var(--primary); */
+  background-image: linear-gradient(90deg, rgb(66, 1, 50), rgb(250, 83, 200));
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
   display: flex;
   align-items: center;
   gap: 8px;

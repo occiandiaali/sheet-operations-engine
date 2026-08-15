@@ -94,6 +94,7 @@ button { color: white; border: none; padding: 12px 20px; border-radius: 6px; cur
   font-size: 2.4rem;
 }
 
+
 /* Right Side Container holding Email and Button */
 .user-badge-container {
   display: flex;
@@ -138,6 +139,7 @@ button { color: white; border: none; padding: 12px 20px; border-radius: 6px; cur
   .dashboard-header h1 {
     top: 0;
     font-size: 1.5rem;
+    left: 15%;
   }
 
   .card h2 {
@@ -446,10 +448,10 @@ button { color: white; border: none; padding: 12px 20px; border-radius: 6px; cur
                 type="email"
                 name="email"
                 class="form-control"
-                placeholder="Business Email Address"
+                placeholder="Email Address"
                 required
               />
-              <input type="password" name="password" class="form-control" required placeholder="Min. 8 character password..">
+              <input type="password" name="password" class="form-control" required placeholder="Password (8 xters min)">
                 <fieldset style="padding: 12px;margin-bottom: 8px;">
     <legend>Select your plan:</legend>
     <!-- <div>
@@ -458,7 +460,7 @@ button { color: white; border: none; padding: 12px 20px; border-radius: 6px; cur
     </div> -->
     
     <div>
-      <input type="radio" id="basicplan" name="basic" value="basic" />
+      <input type="radio" id="basicplan" name="subPlan" value="basic" />
       <label for="basicplan" style="color: yellow;">Basic ($9/m)</label><br/>
               <ul class="plan-ul">
               <li>✓ Secure Cloud-Based Processing</li>
@@ -470,7 +472,7 @@ button { color: white; border: none; padding: 12px 20px; border-radius: 6px; cur
     
     
     <div style="margin-top: 6px;">
-      <input type="radio" id="advancedplan" name="advanced" value="advanced" />
+      <input type="radio" id="advancedplan" name="subPlan" value="advanced" />
       <label for="advancedplan" style="color: yellowgreen;">Advanced ($19/m)</label><br/>
                   <ul class="plan-ul">
               <li>✓ Unlimited File Exports</li>
@@ -481,7 +483,7 @@ button { color: white; border: none; padding: 12px 20px; border-radius: 6px; cur
     </div>
     
   </fieldset>
-
+<div id="register-loader" class="auth-indicator">Provisioning security tokens & database entry...</div>
               <button type="submit" class="btn" style="width: 100%">
                 Sign Up
               </button>
@@ -538,14 +540,20 @@ button { color: white; border: none; padding: 12px 20px; border-radius: 6px; cur
   <% } else { %>
 
     <div class="dashboard-header">
-  <h1>ScrubSpreadsheet</h1>
+  <h1>🧼 ScrubSpreadsheet</h1>
   <div class="user-badge-container">
     <span class="workspace-badge">Active workspace: <strong><%= user.email %></strong></span>
+    <span class="workspace-badge">Current plan: <strong><%= user.subPlan %></strong></span>
+    
     <button hx-post="/auth/logout" class="logout-btn">Secure Logout</button>
   </div>
 </div>
     <br>
     <div class="purged-div">
+      <div hx-get="/api/user/scans-count" hx-trigger="scanCompleted from:body">
+        <span class="workspace-badge">Remaining scans: <strong><%= user.maxScans %></strong></span>
+
+      </div>
   <button hx-post="/api/sheets/clear" 
           hx-target="#purged-div" 
           hx-confirm="Are you sure you want to delete all your securely hosted shared views from the database?" 
@@ -580,7 +588,8 @@ button { color: white; border: none; padding: 12px 20px; border-radius: 6px; cur
     <input type="file" name="targetFile" class="main-input" required>
     <!-- <label><strong>Column Name to Redact</strong> (Case sensitive, e.g., <em>Annual Salary (USD)</em>)</label>
     <input type="text" name="columnName" placeholder="Annual Salary (USD)" required> -->
-    <label><strong>Column Name(s) to Redact</strong> (e.g., <em>Annual Salary (USD), Full Name</em>)</label>
+    <!-- <label><strong>Column(s) to Redact</strong> (e.g., <em>Annual Salary (USD), Full Name</em>)</label> -->
+     <label><strong>Column(s) to redact</strong> (Please, enter the column title)</label>
 <input type="text" name="columnName" class="main-input" placeholder="Separate multiple names with commas" required>
     <button type="submit" style="background:#0f766e;">Scrub &amp; Save View</button>
   </form>

@@ -1,6 +1,17 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 
+// const UserSchema = new mongoose.Schema({
+//   email: {
+//     type: String,
+//     required: true,
+//     unique: true,
+//     lowercase: true,
+//     trim: true,
+//   },
+//   password: { type: String, required: true },
+//   createdAt: { type: Date, default: Date.now },
+// });
 const UserSchema = new mongoose.Schema({
   email: {
     type: String,
@@ -10,6 +21,8 @@ const UserSchema = new mongoose.Schema({
     trim: true,
   },
   password: { type: String, required: true },
+  subPlan: { type: String, default: "basic" },
+  maxScans: { type: Number, default: 1 },
   createdAt: { type: Date, default: Date.now },
 });
 
