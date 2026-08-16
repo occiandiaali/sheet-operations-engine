@@ -1,30 +1,35 @@
-// const mongoose = require("mongoose");
-
-// const SheetSchema = new mongoose.Schema({
-//   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-//   filename: String,
-//   uploadedAt: { type: Date, default: Date.now },
-//   data: [mongoose.Schema.Types.Mixed],
-// });
-
-// module.exports = mongoose.model("Sheet", SheetSchema);
-
-const crypto = require("crypto");
 const mongoose = require("mongoose");
 
-const SheetSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  filename: String,
-  uploadedAt: { type: Date, default: Date.now },
-  data: [mongoose.Schema.Types.Mixed],
+const sheetSchema = new mongoose.Schema({
+  token: { type: String, required: true, unique: true },
+  filename: { type: String, required: true }, // 👈 Added filename
+  data: { type: Array, required: true },
+  headers: { type: Array, default: [] },
+  maskedColumns: [{ type: String }], // 👈 CRITICAL: Added array of redacted column keys
+  createdAt: { type: Date, default: Date.now },
 
-  // 💡 NEW Fields for Sharing Mechanics
-  shareId: {
+  // 👤 Ownership & Plan Snapshot
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  planAtCreation: {
     type: String,
-    unique: true,
-    default: () => crypto.randomBytes(16).toString("hex"),
+    enum: ["basic", "advanced"],
+    default: "basic",
   },
-  maskedColumns: [String], // Stores which columns to hide from guests (e.g. ['annualsalary(usd)', 'fullname'])
+
+  // 🔒 Advanced Security & Lifecycle Fields
+  expiresAt: { type: Date, default: null },
+  passcodeHash: { type: String, default: null },
+  maxAccessCount: { type: Number, default: null },
+  accessCount: { type: Number, default: 0 },
 });
 
-module.exports = mongoose.model("Sheet", SheetSchema);
+// ✅ TTL Index with partial filter expression
+sheetSchema.index(
+  { expiresAt: 1 },
+  {
+    expireAfterSeconds: 0,
+    partialFilterExpression: { expiresAt: { $type: "date" } },
+  },
+);
+
+module.exports = mongoose.model("Sheet", sheetSchema);

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Protected View</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body style="display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #f8fafc;">
+  <div style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 380px; text-align: center;">
+    <div style="font-size: 36px; margin-bottom: 10px;">🔒</div>
+    <h2>Protected Document</h2>
+    <p style="color: #64748b; font-size: 14px;">Enter the passcode provided by the owner to view this dataset.</p>
+
+    <% if (error) { %>
+      <div style="color: #b91c1c; background: #fef2f2; padding: 8px; border-radius: 4px; font-size: 13px; margin-bottom: 12px;">
+        <%= error %>
+      </div>
+    <% } %>
+
+    <form action="/shared/<%= token %>/unlock" method="POST">
+      <input type="password" name="passcode" class="main-input form-control" placeholder="Enter Passcode" required style="text-align: center; font-size: 18px; letter-spacing: 2px;">
+      <!-- <button type="submit" class="btn" style="background:#0f766e; width: 100%; margin-top: 15px;">Unlock Access</button> -->
+       <button type="submit" class="btn">Unlock Access</button>
+    </form>
+  </div>
+</body>
+</html>

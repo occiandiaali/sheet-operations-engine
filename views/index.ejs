@@ -240,7 +240,8 @@ button { color: white; border: none; padding: 12px 20px; border-radius: 6px; cur
         <!-- HEADER SECTION -->
     <header>
       <div class="container header-container">
-        <a href="#" class="logo">🧼 ScrubSpreadsheet</a>
+        <!-- <a href="#" class="logo">🧼 ScrubSpreadsheet</a> -->
+         <a href="#" class="logo"><span style="background-image: none;color: initial;">🧼</span> ScrubSpreadsheet</a>
         <div class="menu-toggle" id="mobile-menu">
           <span></span>
           <span></span>
@@ -520,14 +521,9 @@ button { color: white; border: none; padding: 12px 20px; border-radius: 6px; cur
               <input type="password" name="password" class="form-control" required placeholder="Password (8 xters min)">
                 <fieldset style="padding: 12px;margin-bottom: 8px;">
     <legend>Select your plan:</legend>
-    <!-- <div>
-      <input type="radio" id="freeplan" name="free" value="free" />
-      <label for="freeplan">Free Trial</label>
-    </div> -->
-    
     <div>
       <input type="radio" id="basicplan" name="subPlan" value="basic" />
-      <label for="basicplan" style="color: yellow;">Basic ($9/m)</label><br/>
+      <label for="basicplan" style="color: yellow;">Basic ($7)</label><br/>
               <ul class="plan-ul">
               <li>✓ Secure Cloud-Based Processing</li>
               <li>✓ Minimal Spreadsheet scans</li>
@@ -539,7 +535,7 @@ button { color: white; border: none; padding: 12px 20px; border-radius: 6px; cur
     
     <div style="margin-top: 6px;">
       <input type="radio" id="advancedplan" name="subPlan" value="advanced" />
-      <label for="advancedplan" style="color: yellowgreen;">Advanced ($19/m)</label><br/>
+      <label for="advancedplan" style="color: yellowgreen;">Advanced ($29)</label><br/>
                   <ul class="plan-ul">
               <li>✓ Unlimited File Exports</li>
               <li>✓ Additional Supabase DB option</li>
@@ -606,7 +602,7 @@ button { color: white; border: none; padding: 12px 20px; border-radius: 6px; cur
   <% } else { %>
 
     <div class="dashboard-header">
-  <h1>🧼 ScrubSpreadsheet</h1>
+  <h1><span style="background-image: none;color: initial;">🧼</span> ScrubSpreadsheet</h1>
   <div class="user-badge-container">
     <span class="workspace-badge">Active workspace: <strong><%= user.email %></strong></span>
     <span class="workspace-badge">Current plan: <strong><%= user.subPlan %></strong></span>
@@ -692,7 +688,28 @@ button { color: white; border: none; padding: 12px 20px; border-radius: 6px; cur
       <div style="height: 24px;"></div>
   <label>Enter the name(s) of <strong>column(s) to redact</strong> below.</label>
   <input type="text" name="columnName" class="main-input" placeholder="Separate multiple names with commas" required>
-
+  <% if (user.subPlan !== 'advanced') { %>
+      <p style="margin: 8px 0 0 0; font-size: 12px; color: #64748b;">
+        Upgrade to <strong>Advanced</strong> to set auto-expiring links and PIN-protected shared views.
+      </p>
+    <% } %>
+  <% if (user.subPlan === 'advanced') { %> 
+    <div style="display: flex; gap: 15px; margin-top: 15px;">
+    <div style="flex: 1;">
+      <label><strong>Link Expiration</strong></label>
+      <select name="expiration" class="main-input">
+        <option value="never">Never Expire</option>
+        <option value="1h">1 Hour</option>
+        <option value="24h">24 Hours</option>
+        <option value="7d">7 Days</option>
+      </select>
+    </div>
+    <div style="flex: 1;">
+      <label><strong>Passcode (Optional)</strong></label>
+      <input type="password" name="passcode" class="main-input" placeholder="4-6 digit PIN" maxlength="10">
+    </div>
+  </div>
+    <% } %>
   <button type="submit" style="background:#0f766e; margin-top: 15px;">Scrub &amp; Save View</button>
 </form>
   <div id="mask-loader" class="htmx-indicator">Executing server-side scrubbing loop...</div>

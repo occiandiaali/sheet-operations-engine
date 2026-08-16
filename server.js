@@ -3,10 +3,12 @@ const express = require("express");
 const mongoose = require("mongoose");
 const multer = require("multer");
 const cookieParser = require("cookie-parser");
+const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const xlsx = require("xlsx");
 const path = require("path");
 const fs = require("fs");
+const crypto = require("crypto");
 
 const User = require("./models/User");
 const Sheet = require("./models/Sheet");
@@ -28,48 +30,19 @@ mongoose
   )
   .catch((err) => console.error("MongoDB connection error:", err));
 
+const JWT_SECRET = process.env.JWT_SECRET;
+
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(cookieParser());
+app.use(cookieParser(JWT_SECRET || "the-micro-saas-cookie-thingie"));
 app.use(
   "/htmx",
   express.static(path.join(__dirname, "node_modules/htmx.org/dist")),
 );
 app.use(express.static("public"));
 
-const JWT_SECRET = process.env.JWT_SECRET;
-
 // --- Production-Grade JWT Verification Middleware ---
-// async function isAuthenticated(req, res, next) {
-//   const token = req.cookies.token;
-//   if (!token) {
-//     // If it's an HTMX request, we tell the browser frontend to hard-redirect to home/login view
-//     if (req.headers["hx-request"]) {
-//       res.header("HX-Redirect", "/");
-//       return res.send();
-//     }
-//     return res.redirect("/");
-//   }
-
-//   try {
-//     const decoded = jwt.verify(token, JWT_SECRET);
-//     const user = await User.findById(decoded.userId).select("-password");
-//     if (!user) {
-//       res.clearCookie("token");
-//       return res.redirect("/");
-//     }
-//     req.user = user; // Attach real database user instance to context
-//     next();
-//   } catch (err) {
-//     res.clearCookie("token");
-//     if (req.headers["hx-request"]) {
-//       res.header("HX-Redirect", "/");
-//       return res.send();
-//     }
-//     return res.redirect("/");
-//   }
-// }
 async function isAuthenticated(req, res, next) {
   const token = req.cookies.token;
 
@@ -425,40 +398,88 @@ app.post(
         if (req.file) cleanFile(req.file.path);
         return res.status(400).send("Missing upload document elements.");
       }
+      //console.log("Raw req.body:", req.body);
+      // Extract columns from `columnName` input field
+      const rawInput = req.body.columnName || "";
 
-      // 💡 FIX: Collapse all internal spaces completely from user inputs
-      const targetColumnsArray = req.body.columnName
+      // Split comma-separated names into an array
+      const rawColumnsArray = rawInput
         .split(",")
-        .map((col) => String(col).toLowerCase().replace(/\s+/g, ""))
-        .filter((col) => col !== "");
+        .map((col) => col.trim())
+        .filter(Boolean);
+
+      // Ultra-loose canonicalizer: lowercases and strips non-alphanumeric chars
+      const canonicalize = (str) =>
+        String(str || "")
+          .toLowerCase()
+          .replace(/[^a-z0-9]/g, "");
+
+      // Process target columns into normalized strings
+      const targetColumnsArray = rawColumnsArray.map((col) =>
+        canonicalize(col),
+      );
+
+      console.log("Saving Target Masked Columns to Mongo:", targetColumnsArray);
+      // Output for 'opening stock, product id' => ['openingstock', 'productid']
+
+      //Dynamic Masking Set for local preview
+      const targetMaskedSet = new Set(targetColumnsArray);
 
       const rawData = parseSpreadsheet(req.file.path);
 
       const maskedData = rawData.map((row) => {
-        const newRow = {};
-
+        const cleanRow = {};
         Object.keys(row).forEach((key) => {
-          // 💡 FIX: Collapse all internal spaces completely from the excel header keys
-          const compressedKey = key.toLowerCase().replace(/\s+/g, "");
-
-          if (targetColumnsArray.includes(compressedKey)) {
-            // newRow[key] = "⚠️ [MASKED/RESTRICTED]";
-            newRow[key] = "⚠️ [RESTRICTED]";
+          const canonicalKey = canonicalize(key);
+          if (targetMaskedSet.has(canonicalKey)) {
+            cleanRow[key] = "⚠️ [RESTRICTED]";
           } else {
-            newRow[key] = row[key];
+            cleanRow[key] = row[key];
           }
         });
-
-        return newRow;
+        return cleanRow;
       });
 
       const headers = maskedData.length > 0 ? Object.keys(maskedData[0]) : [];
 
+      // For Advanced User plans
+      const { expiration, passcode } = req.body;
+      const isAdvancedUser = req.user && req.user.subPlan === "advanced";
+
+      // Generate unique share token
+      const token = crypto.randomBytes(16).toString("hex");
+
+      let expiresAt = null;
+      let passcodeHash = null;
+
+      // 🔒 Gated Feature: Process security options ONLY for Advanced users
+      if (isAdvancedUser) {
+        // 1. Calculate Expiration Timestamp
+        const now = new Date();
+        if (expiration === "1h") {
+          expiresAt = new Date(now.getTime() + 60 * 60 * 1000);
+        } else if (expiration === "24h") {
+          expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+        } else if (expiration === "7d") {
+          expiresAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+        }
+
+        // 2. Hash Passcode if provided
+        if (passcode && passcode.trim() !== "") {
+          passcodeHash = await bcrypt.hash(passcode.trim(), 10);
+        }
+      }
+
       const savedSheet = new Sheet({
         userId: req.user._id,
         filename: req.file.originalname,
-        data: rawData, // 💡 PRO-TIP: Save the RAW data to the database so we can dynamically mask it later for different links!
-        maskedColumns: targetColumnsArray, // Save the compressed columns array
+        data: rawData, // Save the RAW data to the database so we can dynamically mask it later for different links!
+        headers,
+        maskedColumns: targetColumnsArray, // Save the compressed columns array & ensures it's not []
+        expiresAt: isAdvancedUser ? expiresAt : null,
+        passcodeHash: isAdvancedUser ? passcodeHash : null,
+        planAtCreation: req.user.subPlan || "basic",
+        token,
       });
       await savedSheet.save();
 
@@ -481,7 +502,7 @@ app.post(
       req.user.maxScans = updatedUser.maxScans;
 
       // Generate the shareable link to send back to the UI
-      const shareLink = `${req.protocol}://${req.get("host")}/shared/${savedSheet.shareId}`;
+      const shareLink = `${req.protocol}://${req.get("host")}/shared/${savedSheet.token}`;
 
       cleanFile(req.file.path);
 
@@ -493,11 +514,14 @@ app.post(
         rows: maskedData.slice(0, 50),
         shareLink,
         remainingScans: req.user.maxScans,
+        expiresAt,
+        isProtected: !!passcodeHash,
+        isAdvancedUser,
       });
-    } catch (error) {
+    } catch (err) {
       if (req.file) cleanFile(req.file.path);
-      console.error(error);
-      res.status(500).send("Error masking spreadsheet column data.");
+      console.error("Masking Save Error: ", err);
+      res.status(500).send('<div class="error-msg">Processing failed.</div>');
     }
   },
 );
@@ -521,41 +545,125 @@ app.get("/api/user/scans-count", isAuthenticated, async (req, res) => {
   }
 });
 
-// Public Endpoint for Team Members/Guests
-app.get("/shared/:shareId", async (req, res) => {
+// GET /shared/:token — Single public view route for all tiers
+app.get("/shared/:token", async (req, res) => {
   try {
-    const sheet = await Sheet.findOne({ shareId: req.params.shareId });
+    const sheet = await Sheet.findOne({ token: req.params.token });
+
     if (!sheet) {
-      return res.status(404).send("<h1>Secure link expired or invalid.</h1>");
+      return res
+        .status(404)
+        .send(
+          "<div style='font-family:Arial,sans-serif; margin: 15% auto;width: 300px;height: 164px;border-radius:8px; padding: 2px 6px;background-color: tomato;color:wheat;text-align:center;'><h1>This link is invalid or expired.</h1></div>",
+        );
     }
 
-    // Dynamic, server-side data scrubbing loop for the guest view
-    const guestMaskedData = sheet.data.map((row) => {
-      const newRow = {};
-      Object.keys(row).forEach((key) => {
-        const compressedKey = key.toLowerCase().replace(/\s+/g, "");
-        if (sheet.maskedColumns.includes(compressedKey)) {
-          // newRow[key] = "⚠️ [RESTRICTED ACCESS]";
-          newRow[key] = "⚠️ [RESTRICTED]";
+    // Expiration Safety Check
+    if (sheet.expiresAt && new Date() > sheet.expiresAt) {
+      return res
+        .status(410)
+        .send(
+          "<div style='font-family:Arial,sans-serif; margin: 15% auto;width: 300px;height: 164px;border-radius:8px; padding: 2px 6px;background-color: tomato;color:wheat;text-align:center;'><h1>This shared view has expired.</h1></div>",
+        );
+    }
+
+    // Passcode Cookie Verification Check
+    if (sheet.passcodeHash) {
+      const isUnlocked =
+        req.signedCookies && req.signedCookies[`unlocked_${sheet.token}`];
+      if (!isUnlocked) {
+        return res.render("passcode-prompt", {
+          token: sheet.token,
+          error: null,
+        });
+      }
+    }
+
+    // Increment Access Count
+    await Sheet.updateOne({ _id: sheet._id }, { $inc: { accessCount: 1 } });
+
+    // 🛠️ 1. Ultra-loose canonical sanitizer (strips ALL non-alphanumeric characters)
+    const canonicalize = (str) =>
+      String(str || "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, ""); // Keeps only standard letters and numbers
+
+    // 🔒 2. Build canonical Set of target masked columns
+    const targetMaskedSet = new Set(
+      (sheet.maskedColumns || []).map((col) => canonicalize(col)),
+    );
+
+    // DEBUG LOG: Verify what's stored vs what's matched
+    console.log("Canonical Masked Targets:", Array.from(targetMaskedSet));
+
+    // 🔒 3. Dynamic Server-Side Scrubbing
+    const guestMaskedData = (sheet.data || []).map((row) => {
+      const cleanRow = {};
+
+      // Unwrap Mongoose document if applicable
+      const rawObject = row.toObject
+        ? row.toObject({ getters: false, virtuals: false })
+        : row;
+
+      Object.keys(rawObject).forEach((key) => {
+        // Skip Mongoose internal metadata keys if present
+        if (key === "_id" || key === "__v") return;
+
+        const canonicalKey = canonicalize(key);
+
+        if (targetMaskedSet.has(canonicalKey)) {
+          cleanRow[key] = "⚠️ [RESTRICTED]";
         } else {
-          newRow[key] = row[key];
+          cleanRow[key] = rawObject[key];
         }
       });
-      return newRow;
+
+      return cleanRow;
     });
 
     const headers =
       guestMaskedData.length > 0 ? Object.keys(guestMaskedData[0]) : [];
 
-    // Render a clean guest layout view
     res.render("guest-view", {
       filename: sheet.filename,
       headers,
       rows: guestMaskedData,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Scrubbing Error:", error);
     res.status(500).send("Error compiling secure view.");
+  }
+});
+
+// POST /shared/:token/unlock — Verify submitted passcode
+app.post("/shared/:token/unlock", async (req, res) => {
+  try {
+    const { passcode } = req.body;
+    const sheet = await Sheet.findOne({ token: req.params.token });
+
+    if (!sheet) {
+      return res.status(404).send("Link not found");
+    }
+
+    const isValid = await bcrypt.compare(passcode || "", sheet.passcodeHash);
+    if (isValid) {
+      // 🍪 Set a signed cookie valid for 24 hours
+      res.cookie(`unlocked_${sheet.token}`, "true", {
+        signed: true,
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      });
+
+      return res.redirect(`/shared/${sheet.token}`);
+    } else {
+      return res.render("passcode-prompt", {
+        token: req.params.token,
+        error: "Invalid passcode. Please try again.",
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Verification failed.");
   }
 });
 
