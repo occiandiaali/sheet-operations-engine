@@ -523,7 +523,7 @@ button { color: white; border: none; padding: 12px 20px; border-radius: 6px; cur
     <legend>Select your plan:</legend>
     <div>
       <input type="radio" id="basicplan" name="subPlan" value="basic" />
-      <label for="basicplan" style="color: yellow;">Basic ($7)</label><br/>
+      <label for="basicplan" style="color: yellow;">Basic ($9 / 20 scans)</label><br/>
               <ul class="plan-ul">
               <li>✓ Secure Cloud-Based Processing</li>
               <li>✓ Minimal Spreadsheet scans</li>
@@ -535,7 +535,7 @@ button { color: white; border: none; padding: 12px 20px; border-radius: 6px; cur
     
     <div style="margin-top: 6px;">
       <input type="radio" id="advancedplan" name="subPlan" value="advanced" />
-      <label for="advancedplan" style="color: yellowgreen;">Advanced ($29)</label><br/>
+      <label for="advancedplan" style="color: yellowgreen;">Advanced ($29 / 100 scans)</label><br/>
                   <ul class="plan-ul">
               <li>✓ Unlimited File Exports</li>
               <li>✓ Additional Supabase DB option</li>
@@ -632,7 +632,12 @@ button { color: white; border: none; padding: 12px 20px; border-radius: 6px; cur
   <h2>🔍 Version Comparison Engine (Diff)</h2>
   <p style="color:#475569;">Upload two versions of a spreadsheet to instantly cross-reference row changes.</p>
   <form hx-post="/api/diff" hx-encoding="multipart/form-data" hx-target="#diff-output" hx-indicator="#diff-loader">
-  
+      <% if (user.subPlan !== 'advanced') { %>
+      <p style="margin: 8px 0 0 0; font-size: 12px; color: #64748b;">
+        Upgrade to <strong>Advanced</strong> to be able to also download a PDF or TXT of the result.
+      </p>
+    <% } %>
+  <div style="height: 10px;"></div>
   <!-- File A Dropzone (v1) -->
   <label><strong>Original Sheet (v1)</strong></label>
   <label for="fileA" id="drop-zone-a" class="drop-zone">
@@ -645,9 +650,9 @@ button { color: white; border: none; padding: 12px 20px; border-radius: 6px; cur
     </div>
   </label>
   <input type="file" id="fileA" name="fileA" style="display: none;" required accept=".xlsx, .xls, .csv">
-
+  <div style="height: 20px;"></div>
   <!-- File B Dropzone (v2) -->
-  <label style="margin-top: 15px;"><strong>Modified Sheet (v2)</strong></label>
+  <label><strong>Modified Sheet (v2)</strong></label>
   <label for="fileB" id="drop-zone-b" class="drop-zone">
     <div class="drop-zone-content">
       <span class="drop-zone-icon">📝</span>

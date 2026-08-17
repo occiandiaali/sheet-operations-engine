@@ -419,7 +419,7 @@ app.post(
         canonicalize(col),
       );
 
-      console.log("Saving Target Masked Columns to Mongo:", targetColumnsArray);
+      //console.log("Saving Target Masked Columns to Mongo:", targetColumnsArray);
       // Output for 'opening stock, product id' => ['openingstock', 'productid']
 
       //Dynamic Masking Set for local preview
