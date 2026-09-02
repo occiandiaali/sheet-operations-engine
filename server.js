@@ -183,6 +183,10 @@ app.post("/auth/register", async (req, res) => {
         );
     }
 
+    if (subPlan === "trial") {
+      allowedScans = 2;
+    }
+
     if (subPlan === "basic") {
       allowedScans = 20;
     }

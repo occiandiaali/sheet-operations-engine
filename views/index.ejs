@@ -521,13 +521,23 @@ button { color: white; border: none; padding: 12px 20px; border-radius: 6px; cur
               <input type="password" name="password" class="form-control" required placeholder="Password (8 xters min)">
                 <fieldset style="padding: 12px;margin-bottom: 8px;">
     <legend>Select your plan:</legend>
-    <div>
+        <div >
+      <input type="radio" id="trialplan" name="subPlan" value="trial" />
+      <label for="trialplan" style="color: yellow;">Trial ($0 / <span style="font-size: small;">2 scans</span>)</label><br/>
+              <ul class="plan-ul">
+              <li>✓ Secure Cloud-Based Processing</li>
+              <li>✓ 2 Spreadsheet scans</li>
+              <li>❌ No report exports</li>
+              <li>❌ No secure passcode</li>
+        </ul>
+    </div>
+    <div style="margin-top: 6px;">
       <input type="radio" id="basicplan" name="subPlan" value="basic" />
-      <label for="basicplan" style="color: yellow;">Basic ($9 / 20 scans)</label><br/>
+      <label for="basicplan" style="color: rgb(255, 0, 170);">Basic ($9 / <span style="font-size: small;">20 scans</span>)</label><br/>
               <ul class="plan-ul">
               <li>✓ Secure Cloud-Based Processing</li>
               <li>✓ Minimal Spreadsheet scans</li>
-              <li>✓ Get minimal Strategy Guidance</li>
+              <li>✓ Minimal redaction options</li>
               <li>❌ No PDF or TXT exports</li>
         </ul>
     </div>
@@ -535,11 +545,11 @@ button { color: white; border: none; padding: 12px 20px; border-radius: 6px; cur
     
     <div style="margin-top: 6px;">
       <input type="radio" id="advancedplan" name="subPlan" value="advanced" />
-      <label for="advancedplan" style="color: yellowgreen;">Advanced ($29 / 100 scans)</label><br/>
+      <label for="advancedplan" style="color: yellowgreen;">Advanced ($29 / <span style="font-size: small;">100 scans</span>)</label><br/>
                   <ul class="plan-ul">
-              <li>✓ Unlimited File Exports</li>
-              <li>✓ Additional Supabase DB option</li>
-              <li>✓ Generate unlimited boilerplates</li>
+              <li>✓ Secure Cloud-Based Processing</li>
+              <li>✓ Additional redaction options</li>
+              <li>✓ Download/Extract reports</li>
               <li>✓ Priority Support</li>
             </ul>
     </div>
@@ -552,9 +562,9 @@ button { color: white; border: none; padding: 12px 20px; border-radius: 6px; cur
             </form>
           </div>
           <div class="cta-box">
-            <h3>Free Trial</h3>
+            <h3>Feedback</h3>
             <p>
-              Take <strong>ScrubSpreadsheet</strong> for a spin! Try out our diffing &amp; scrubbing features for free! See if it's what you're looking for.
+              Have you tried our diffing &amp; scrubbing features for free? Tell us what you think about <strong>ScrubSpreadsheet</strong>. 
             </p>
             <form class="custom-submit">
               <input
@@ -563,6 +573,7 @@ button { color: white; border: none; padding: 12px 20px; border-radius: 6px; cur
                 placeholder="Email Address"
                 required
               />
+              <textarea class="form-control" placeholder="Share your views.."></textarea>
               <!-- <div
                 style="margin-bottom: 95px"
                 class="desktop-spacing-spacer"
@@ -572,7 +583,7 @@ button { color: white; border: none; padding: 12px 20px; border-radius: 6px; cur
                 class="btn btn-secondary"
                 style="width: 100%"
               >
-                Free Trial
+                Send Feedback
               </button>
             </form>
           </div>
