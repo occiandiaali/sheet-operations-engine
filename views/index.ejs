@@ -682,6 +682,20 @@ button { color: white; border: none; padding: 12px 20px; border-radius: 6px; cur
 </div>
 
 <div class="card" id="mask-section">
+  <div style="margin-bottom: 6px;">
+    <p style="font-size: medium;font-weight: 700;color: #475569;">Existing Links</p>
+    <% if (userLinks.length > 0) {%>
+
+    <select style="width: 248px;">
+      <% userLinks.forEach(function(link) { %>
+        <option><%= link %></option>
+      <% }); %>  
+    </select>
+  <% } else { %> 
+    <p>No Existing Links</p> 
+    <% } %>
+  </div>
+  <hr />
   <h2>🛡️ Column Masking (Scrub)</h2>
   <p style="color:#475569;">Redact a highly sensitive column before sharing with others.</p>
   <form hx-post="/api/mask" hx-encoding="multipart/form-data" hx-target="#mask-output" hx-indicator="#mask-loader">

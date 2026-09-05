@@ -159,7 +159,13 @@ app.get("/", async (req, res) => {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     const user = await User.findById(decoded.userId).select("-password");
-    return res.render("index", { user });
+    const userId = user._id; // Added 9/5/26
+    let userShareLinks = await Sheet.find({ userId: userId });
+    // console.log(`Files: ${JSON.stringify(userShareLinks[0].filename)}`);
+    // console.log(`Files: ${JSON.stringify(userShareLinks)}`);
+    const userLinks = userShareLinks.map((link) => link.filename);
+    // console.log(`Filers>>>>>>>> ${userLinks}`);
+    return res.render("index", { user, userLinks });
   } catch (err) {
     res.clearCookie("token");
     return res.render("index", { user: null });
@@ -221,6 +227,7 @@ app.post("/auth/login", async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
+
     if (!user || !(await user.comparePassword(password))) {
       return res
         .status(400)
